@@ -43,6 +43,7 @@ def parse_date(string):
 
 class SiouxParser:
     RAW_EVENTS = None
+    RAW_BDAYS = None
 
     def __init__(self, path_config_file=None):
         """
@@ -113,7 +114,7 @@ class SiouxParser:
         return {ONE_DAY: one_day, MUL_DAY: mul_day, TODAY: today, FUTURE: future, PAST: past}
 
     @staticmethod
-    def validate_day(days, filter_days):
+    def __validate_day(days, filter_days):
         """
         Validates given days based on the filter created in filter_events_date method.
         Returns true if dates respect filter settings, false otherwise.
@@ -164,7 +165,7 @@ class SiouxParser:
         self.__session = requests.Session()
         self.__session.auth = HttpNtlmAuth(username, password)
 
-    def get_events(self):
+    def __get_events(self):
         """
         Get all events from the events page and store it in the member RAW_EVENTS
         """
@@ -197,10 +198,14 @@ class SiouxParser:
         Returns: List of dictionaries with keys: date, title, location, category.
         """
         results = []
+
+        if self.RAW_EVENTS is None:
+            self.__get_events()
+
         events = self.RAW_EVENTS
 
         for date, title, loc, cat in zip(events['Dates'], events['Titles'], events['Location'], events['Category']):
-            if not (filter_title in title and filter_cat[cat] and self.validate_day(date, filter_date)):
+            if not (filter_title in title and filter_cat[cat] and self.__validate_day(date, filter_date)):
                 continue
             if len(date) == 2 and date[0] != date[1]:
                 time = date[0].strftime('%d/%m/%Y') + " - " + date[1].strftime('%d/%m/%Y')
@@ -220,7 +225,7 @@ class SiouxParser:
         events = self.parse_events(filter_cat, filter_date, filter_title)
         return events[0] if len(events) else []
 
-    def get_recent_birthdays(self):
+    def __get_recent_birthdays(self):
         if self.__session is None:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
@@ -242,14 +247,13 @@ class SiouxParser:
             result = {'name': name, 'date': date, 'role': role}
             bdays.append(result)
 
-        return bdays
+        self.RAW_BDAYS = bdays
 
 
 # Main program:
 if __name__ == "__main__":
     parser = SiouxParser()
     parser.authenticate()
-    parser.get_events()
 
     # Set filters
     filter_category_dict = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
@@ -265,5 +269,3 @@ if __name__ == "__main__":
         print 'Location: \t%s' % event['location']
         print 'Category: \t%s' % event['category']
         print ''
-
-    bdays_dict = parser.get_recent_birthdays()
