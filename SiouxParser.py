@@ -26,7 +26,7 @@ def prettify_string(string):
     Remove tabs and newlines from string.
     Returns prettified string.
     """
-    return string.replace('\n', '').replace('\t', '')
+    return string.strip().replace('\n', '').replace('\t', '')
 
 
 def parse_date(string):
