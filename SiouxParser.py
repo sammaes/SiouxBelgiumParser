@@ -64,6 +64,7 @@ class SiouxParser:
         self.__iis_domain = self.conf.get('URLS', 'IIS_DOMAIN')
         self.__baseUrl = self.conf.get('URLS', 'BASE')
         self.__eventsUrl = self.__baseUrl + self.conf.get('URLS', 'EVENTS_EXT')
+        self.__birtdayUrl = self.__baseUrl + self.conf.get('URLS', 'BDAY_EXT')
         self.__session = None
 
         # Event categories:
@@ -218,6 +219,30 @@ class SiouxParser:
         events = self.parse_events(filter_cat, filter_date, filter_title)
         return events[0] if len(events) else []
 
+    def get_recent_birthdays(self):
+        if self.__session is None:
+            raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
+
+        bdays = []
+
+        req = self.__session.get(self.__birtdayUrl)
+        soup = BeautifulSoup(req.content)
+
+        bday = soup.find_all(self.conf.get('PARSE_BDAY', 'ELEMENT'), {self.conf.get('PARSE_BDAY', 'ARG'): self.conf.get('PARSE_BDAY', 'VALUE_OVERALL')})
+        bdaylist = bday[0].findAll(self.conf.get('PARSE_BDAY', 'VALUE_SEPARATE'))
+        for entry in bdaylist:
+            regex_name = re.findall("(.+) \(", entry.text)
+            regex_date = re.findall("\((\d{1,2} [a-z]+)\)", entry.text)
+
+            name = regex_name[0]
+            role = entry['class'][0]
+            date = datetime.strptime(regex_date[0], "%d %b").date().replace(year=datetime.now().date().year)
+
+            result = {'name': name, 'date': date, 'role': role}
+            bdays.append(result)
+
+        return bdays
+
 
 # Main program:
 if __name__ == "__main__":
@@ -239,3 +264,5 @@ if __name__ == "__main__":
         print 'Location: \t%s' % event['location']
         print 'Category: \t%s' % event['category']
         print ''
+
+    bdays = parser.get_recent_birthdays()
