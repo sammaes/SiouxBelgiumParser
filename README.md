@@ -35,3 +35,12 @@ Machine entry can also be changed if you pass it as an argument to the authentic
 You also need a configuration file which I can not publish on github (company sensitive data). <br />
 This file can be obtained by sending an email to: <br />
 <img src="https://github.com/sammaes/SiouxBelgiumParser/blob/master/Readme_resources/adres.png?raw=true" style="vertical-align: middle;" />
+
+## Usecases
+
+### BitBar Plugin
+The Sioux Parser can be used in a [BitBar](https://github.com/matryer/bitbar) plugin as seen in the following screenshot:
+<img src="https://github.com/sammaes/SiouxBelgiumParser/blob/master/Readme_resources/bitbar.png?raw=true" style="vertical-align: middle;" />
+
+To enable this plugin, copy the content of the 'BitBar-Plugin' folder to the root of your BitBar-plugin folder. Next copy the file 'SiouxParser.py' to the folder 'scripts' that you just have copied to your BitBar-plugin folder.  
+The last thing that you have to do is to copy your 'config.ini' file to this 'scripts' folder. If you rather keep a centralised version of the 'config.ini' file, than you can just edit line 13 of the BitBar plugin.
