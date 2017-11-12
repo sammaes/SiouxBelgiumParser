@@ -1,4 +1,4 @@
-# SiouxBelgiumParser
+# Sioux Belgium Parser
 Python script to parse the Sioux Belgium intranet website.
 This script is only meant for Sioux Belgium employees.
 
