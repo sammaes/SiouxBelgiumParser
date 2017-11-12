@@ -23,5 +23,6 @@ password <sioux_password>
 Machine entry can also be changed if you pass it as an argument to the authenticate method.
 
 ### config.ini
-You also need a configuration file which I can not publish on github (company sensitive data).
-This file can be obtained by sending an email to <img src="https://github.com/sammaes/SiouxBelgiumParser/blob/master/Readme_resources/adres.png?raw=true" height="12" />
+You also need a configuration file which I can not publish on github (company sensitive data). <br />
+This file can be obtained by sending an email to: <br />
+<img src="https://github.com/sammaes/SiouxBelgiumParser/blob/master/Readme_resources/adres.png?raw=true" style="vertical-align: middle;" />
