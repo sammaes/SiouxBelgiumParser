@@ -2,6 +2,7 @@
 
 import locale
 import netrc
+import os
 import re
 import requests
 import ConfigParser
@@ -15,6 +16,9 @@ MUL_DAY = 'multiple_days'
 TODAY = 'today'
 FUTURE = 'future'
 PAST = 'past'
+
+# Config file
+CONFIG_FILE = 'config.ini'
 
 
 def prettify_string(string):
@@ -38,11 +42,21 @@ def parse_date(string):
 
 
 class SiouxParser:
-    """Parser for Sioux BE intranet."""
+    """
+    Parser for Sioux BE intranet.
 
-    def __init__(self):
+    Keyword arguments:
+    path_config_file -- path to the configuration file (default: current directory)
+    """
+
+    def __init__(self, path_config_file=None):
         self.conf = ConfigParser.ConfigParser()
-        self.conf.read('config.ini')
+
+        path = path_config_file if path_config_file is not None else os.getcwd() + '/'
+        if os.path.isfile(path + CONFIG_FILE):
+            self.conf.read(path + CONFIG_FILE)
+        else:
+            raise RuntimeError("Could not locate the config file in directory '%s'." % path)
 
         self.__iis_domain = self.conf.get('URLS', 'IIS_DOMAIN')
         self.__baseUrl = self.conf.get('URLS', 'BASE')
