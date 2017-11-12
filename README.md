@@ -14,9 +14,9 @@ This script is only meant for Sioux Belgium employees.
   - pyopenssl
 #### Possible issues:
 ##### MacOS
-Following error can occur during installation of PIP packages: ‘could not uninstall <package_name>’.
-This can be resolved by running 'easy_install -U <package_name>' first.
-(reason: macOS SIP)
+Following error can occur during installation of PIP packages: ‘could not uninstall <package_name>’.<br />
+This can be resolved by running 'easy_install -U <package_name>' first.<br />
+(reason: macOS SIP)<br />
 Thanks to: https://github.com/Kevin-De-Koninck
 
 ### locale
