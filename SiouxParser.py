@@ -190,7 +190,7 @@ class SiouxParser:
 
         self.RAW_EVENTS = dict_events
 
-    def parse_events(self, filter_cat, filter_date):
+    def parse_events(self, filter_cat, filter_date, filter_title=""):
         """
         Parse and filter all events into a list of dictionaries.
         Returns: List of dictionaries with keys: date, title, location, category.
@@ -199,7 +199,7 @@ class SiouxParser:
         events = self.RAW_EVENTS
 
         for date, title, loc, cat in zip(events['Dates'], events['Titles'], events['Location'], events['Category']):
-            if not (filter_cat[cat] and self.validate_day(date, filter_date) and filter_title in title):
+            if not (filter_title in title and filter_cat[cat] and self.validate_day(date, filter_date)):
                 continue
             if len(date) == 2 and date[0] != date[1]:
                 time = date[0].strftime('%d/%m/%Y') + " - " + date[1].strftime('%d/%m/%Y')
@@ -210,12 +210,12 @@ class SiouxParser:
         return results
 
 
-    def get_next_event(self, filter_cat, filter_date):
+    def get_next_event(self, filter_cat, filter_date, filter_title=""):
         """
         Parse and filter the first event into a dictionary.
         Returns: Dictionary with keys: date, title, location, category.
         """
-        events = self.parse_events(filter_cat, filter_date)
+        events = self.parse_events(filter_cat, filter_date, filter_title)
         return events[0]
 
 
@@ -231,6 +231,7 @@ if __name__ == "__main__":
 
     # Retrieve events
     events = parser.parse_events(filter_category, filter_date)
+    # events = parser.get_next_event(filter_category, filter_date, "in the cloud")
 
     for event in events:
         print 'Title: \t\t%s' % event['title']
