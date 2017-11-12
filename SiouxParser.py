@@ -186,26 +186,27 @@ class SiouxParser:
 
 
 # Main program:
-parser = SiouxParser()
-parser.authenticate()
-events = None
-try:
-    events = parser.get_events(parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True),
-                               parser.filter_events_date(one_day=False, mul_day=True, today=True, future=True, past=False))
-except RuntimeError as err:
-    print err.args[0]
-    exit(1)
+if __name__ == "__main__":
+    parser = SiouxParser()
+    parser.authenticate()
+    events = None
+    try:
+        events = parser.get_events(parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True),
+                                   parser.filter_events_date(one_day=False, mul_day=True, today=True, future=True, past=False))
+    except RuntimeError as err:
+        print err.args[0]
+        exit(1)
 
-for date, title, loc, cat in zip(events['Dates'],
-                                 events['Titles'],
-                                 events['Location'],
-                                 events['Category']):
-    if len(date) == 2 and date[0] != date[1]:
-        print "Meerdere dagen: Start:" + date[0].strftime('%d/%m/%Y') + " Stop:" + date[1].strftime('%d/%m/%Y')
-    elif len(date) == 1 or date[0] == date[1]:
-        print "1 Dag:" + date[0].strftime('%d/%m/%Y')
+    for date, title, loc, cat in zip(events['Dates'],
+                                     events['Titles'],
+                                     events['Location'],
+                                     events['Category']):
+        if len(date) == 2 and date[0] != date[1]:
+            print "Meerdere dagen: Start:" + date[0].strftime('%d/%m/%Y') + " Stop:" + date[1].strftime('%d/%m/%Y')
+        elif len(date) == 1 or date[0] == date[1]:
+            print "1 Dag:" + date[0].strftime('%d/%m/%Y')
 
-    print 'Titel: ' + title
-    print 'Locatie: ' + loc
-    print 'Categorie: ' + cat
-    print '\n'
+        print 'Titel: ' + title
+        print 'Locatie: ' + loc
+        print 'Categorie: ' + cat
+        print '\n'
