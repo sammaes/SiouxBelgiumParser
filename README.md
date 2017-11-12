@@ -12,7 +12,13 @@ This script is only meant for Sioux Belgium employees.
   - requests_ntlm
   - beautifulsoup4
   - pyopenssl
-  
+#### Possible issues:
+##### MacOS
+Following error can occur during installation of PIP packages: ‘could not uninstall <package_name>’.
+This can be resolved by running 'easy_install -U <package_name>' first.
+(reason: macOS SIP)
+Thanks to: https://github.com/Kevin-De-Koninck
+
 ### locale
 Because this website is written in dutch it is required to have <b>nl_BE</b> enabled.
 
