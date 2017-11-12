@@ -52,11 +52,13 @@ class SiouxParser:
         """
         self.conf = ConfigParser.ConfigParser()
 
-        path = path_config_file if path_config_file is not None else os.getcwd() + '/'
-        if os.path.isfile(path + CONFIG_FILE):
-            self.conf.read(path + CONFIG_FILE)
+        path = path_config_file if path_config_file is not None else os.getcwd()
+        config_file = os.path.join(path, CONFIG_FILE)
+        
+        if os.path.isfile(config_file):
+            self.conf.read(config_file)
         else:
-            raise RuntimeError("Could not locate the config file in directory '%s'." % path)
+            raise RuntimeError("Could not locate config file '%s'." % config_file)
 
         self.__iis_domain = self.conf.get('URLS', 'IIS_DOMAIN')
         self.__baseUrl = self.conf.get('URLS', 'BASE')
