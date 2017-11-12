@@ -216,7 +216,7 @@ class SiouxParser:
         Returns: Dictionary with keys: date, title, location, category.
         """
         events = self.parse_events(filter_cat, filter_date, filter_title)
-        return events[0]
+        return events[0] if len(events) else []
 
 
 # Main program:
