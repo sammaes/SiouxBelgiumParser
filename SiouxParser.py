@@ -166,7 +166,7 @@ class SiouxParser:
         parse_element = self.conf.get('PARSE_EV', 'ELEMENT')
         parse_arg = self.conf.get('PARSE_EV', 'ARG')
         req = self.__session.get(self.__eventsUrl)
-        soup = BeautifulSoup(req.content)
+        soup = BeautifulSoup(req.content, "html.parser")
 
         dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": []}
 
