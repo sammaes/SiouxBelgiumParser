@@ -23,7 +23,7 @@ CONFIG_FILE = 'config.ini'
 
 def prettify_string(string):
     """
-    Remove tabs and newlines from string.
+    Remove tabs, newlines and leading/trailing spaces from string.
     Returns prettified string.
     """
     return string.strip().replace('\n', '').replace('\t', '')
@@ -42,11 +42,12 @@ def parse_date(string):
 
 
 class SiouxParser:
+    RAW_EVENTS = None
 
     def __init__(self, path_config_file=None):
         """
         Parser for Sioux BE intranet.
-    
+
         Keyword arguments:
         path_config_file -- path to the configuration file (default: current directory)
         """
@@ -54,7 +55,7 @@ class SiouxParser:
 
         path = path_config_file if path_config_file is not None else os.getcwd()
         config_file = os.path.join(path, CONFIG_FILE)
-        
+
         if os.path.isfile(config_file):
             self.conf.read(config_file)
         else:
@@ -162,12 +163,9 @@ class SiouxParser:
         self.__session = requests.Session()
         self.__session.auth = HttpNtlmAuth(username, password)
 
-    def get_events(self, filter_cat, filter_date):
+    def get_events(self):
         """
-        Get all events from the events page.
-
-        Keyword arguments:
-        filter_cat -- dictionary created by filter_events_category method.
+        Get all events from the events page and store it in the member RAW_EVENTS
         """
         if self.__session is None:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
@@ -185,62 +183,54 @@ class SiouxParser:
         category = [prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_CATEGORY')})]
 
         for dateEv, titleEv, locEv, catEv in zip(dates, titles, location, category):
-            if filter_cat[catEv] and self.validate_day(dateEv, filter_date):
-                dict_events['Dates'].append(dateEv)
-                dict_events['Titles'].append(prettify_string(titleEv.text))
-                dict_events['Location'].append(prettify_string(locEv.text))
-                dict_events['Category'].append(catEv)
+            dict_events['Dates'].append(dateEv)
+            dict_events['Titles'].append(prettify_string(titleEv.text))
+            dict_events['Location'].append(prettify_string(locEv.text))
+            dict_events['Category'].append(catEv)
 
-        return dict_events
-    
+        self.RAW_EVENTS = dict_events
+
     def parse_events(self, filter_cat, filter_date):
         """
-        Retrieve all events from the events page and parse them into a list of dictionaries.
-        Returns: True if everything was successful, False otherwise.
+        Parse and filter all events into a list of dictionaries.
         Returns: List of dictionaries with keys: date, title, location, category.
         """
         results = []
-        events = None
-
-        try:
-            events = self.get_events(filter_cat, filter_date)
-        except RuntimeError as err:
-            return False
+        events = self.RAW_EVENTS
 
         for date, title, loc, cat in zip(events['Dates'], events['Titles'], events['Location'], events['Category']):
+            if not (filter_cat[cat] and self.validate_day(date, filter_date) and filter_title in title):
+                continue
             if len(date) == 2 and date[0] != date[1]:
                 time = date[0].strftime('%d/%m/%Y') + " - " + date[1].strftime('%d/%m/%Y')
             elif len(date) == 1 or date[0] == date[1]:
                 time = date[0].strftime('%d/%m/%Y')
             result = {'date': time, 'title': title, 'location': loc, 'category': cat}
             results.append(result)
-        return True, results
+        return results
 
 
     def get_next_event(self, filter_cat, filter_date):
         """
-        Retrieve the first events from the events page and parse it into a dictionary.
-        Returns: True if everything was successful, False otherwise.
+        Parse and filter the first event into a dictionary.
         Returns: Dictionary with keys: date, title, location, category.
         """
-        rc, events = self.parse_events(filter_cat, filter_date)
-        return rc, events[0]
+        events = self.parse_events(filter_cat, filter_date)
+        return events[0]
 
 
 # Main program:
 if __name__ == "__main__":
     parser = SiouxParser()
     parser.authenticate()
-    
+    parser.get_events()
+
     # Set filters
     filter_category = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
-    filter_date = parser.filter_events_date(one_day=False, mul_day=True, today=True, future=True, past=True)
+    filter_date = parser.filter_events_date(one_day=True, mul_day=True, today=True, future=True, past=False)
 
     # Retrieve events
-    parse_was_success, events = parser.parse_events(filter_category, filter_date)
-
-    if not parse_was_success:
-        exit(1)
+    events = parser.parse_events(filter_category, filter_date)
 
     for event in events:
         print 'Title: \t\t%s' % event['title']
