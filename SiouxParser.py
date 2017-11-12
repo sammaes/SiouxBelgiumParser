@@ -192,30 +192,59 @@ class SiouxParser:
                 dict_events['Category'].append(catEv)
 
         return dict_events
+    
+    def parse_events(self, filter_cat, filter_date):
+        """
+        Retrieve all events from the events page and parse them into a list of dictionaries.
+        Returns: True if everything was successful, False otherwise.
+        Returns: List of dictionaries with keys: date, title, location, category.
+        """
+        results = []
+        events = None
+
+        try:
+            events = self.get_events(filter_cat, filter_date)
+        except RuntimeError as err:
+            return False
+
+        for date, title, loc, cat in zip(events['Dates'], events['Titles'], events['Location'], events['Category']):
+            if len(date) == 2 and date[0] != date[1]:
+                time = date[0].strftime('%d/%m/%Y') + " - " + date[1].strftime('%d/%m/%Y')
+            elif len(date) == 1 or date[0] == date[1]:
+                time = date[0].strftime('%d/%m/%Y')
+            result = {'date': time, 'title': title, 'location': loc, 'category': cat}
+            results.append(result)
+        return True, results
+
+
+    def get_next_event(self, filter_cat, filter_date):
+        """
+        Retrieve the first events from the events page and parse it into a dictionary.
+        Returns: True if everything was successful, False otherwise.
+        Returns: Dictionary with keys: date, title, location, category.
+        """
+        rc, events = self.parse_events(filter_cat, filter_date)
+        return rc, events[0]
 
 
 # Main program:
 if __name__ == "__main__":
     parser = SiouxParser()
     parser.authenticate()
-    events = None
-    try:
-        events = parser.get_events(parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True),
-                                   parser.filter_events_date(one_day=False, mul_day=True, today=True, future=True, past=False))
-    except RuntimeError as err:
-        print err.args[0]
+    
+    # Set filters
+    filter_category = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
+    filter_date = parser.filter_events_date(one_day=False, mul_day=True, today=True, future=True, past=True)
+
+    # Retrieve events
+    parse_was_success, events = parser.parse_events(filter_category, filter_date)
+
+    if not parse_was_success:
         exit(1)
 
-    for date, title, loc, cat in zip(events['Dates'],
-                                     events['Titles'],
-                                     events['Location'],
-                                     events['Category']):
-        if len(date) == 2 and date[0] != date[1]:
-            print "Meerdere dagen: Start:" + date[0].strftime('%d/%m/%Y') + " Stop:" + date[1].strftime('%d/%m/%Y')
-        elif len(date) == 1 or date[0] == date[1]:
-            print "1 Dag:" + date[0].strftime('%d/%m/%Y')
-
-        print 'Titel: ' + title
-        print 'Locatie: ' + loc
-        print 'Categorie: ' + cat
-        print '\n'
+    for event in events:
+        print 'Title: \t\t%s' % event['title']
+        print 'Date: \t\t%s' % event['date']
+        print 'Location: \t%s' % event['location']
+        print 'Category: \t%s' % event['category']
+        print ''
