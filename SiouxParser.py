@@ -107,33 +107,26 @@ class SiouxParser:
         multiple_days = len(days) > 1 and (days[0] != days[1])
 
         if (not filter_date[ONE_DAY] and not multiple_days) or (not filter_date[MUL_DAY] and not multiple_days):
-            print '<<<<<<<<< -1'
             return False
 
         if not filter_date[PAST] and days[-1] < current_date:
-            print '<<<<<<<<< -2'
             return False
 
         if not filter_date[FUTURE] and days[-1] > current_date:
-            print '<<<<<<<<< -3'
             return False
 
         if (filter_date[ONE_DAY] and not multiple_days) or (filter_date[MUL_DAY] and multiple_days):
-            print '<<<<<<<<< 1'
             return True
 
         if filter_date[TODAY] and days[0] <= current_date <= days[-1]:
-            print '<<<<<<<<< 2'
             return True
 
         if filter_date[FUTURE] and days[-1] > current_date:
-            print '<<<<<<<<< 3'
             return True
 
         if filter_date[PAST] and days[-1] < current_date:
-            print '<<<<<<<<< 4'
             return True
-        print '<<<<<<<<< 5'
+
         return False
 
     def authenticate(self, machine=None):
