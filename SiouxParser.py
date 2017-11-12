@@ -113,7 +113,7 @@ class SiouxParser:
         return {ONE_DAY: one_day, MUL_DAY: mul_day, TODAY: today, FUTURE: future, PAST: past}
 
     @staticmethod
-    def validate_day(days, filter_date):
+    def validate_day(days, filter_days):
         """
         Validates given days based on the filter created in filter_events_date method.
         Returns true if dates respect filter settings, false otherwise.
@@ -124,25 +124,25 @@ class SiouxParser:
         current_date = datetime.now().date()
         multiple_days = len(days) > 1 and (days[0] != days[1])
 
-        if (not filter_date[ONE_DAY] and not multiple_days) or (not filter_date[MUL_DAY] and not multiple_days):
+        if (not filter_days[ONE_DAY] and not multiple_days) or (not filter_days[MUL_DAY] and not multiple_days):
             return False
 
-        if not filter_date[PAST] and days[-1] < current_date:
+        if not filter_days[PAST] and days[-1] < current_date:
             return False
 
-        if not filter_date[FUTURE] and days[-1] > current_date:
+        if not filter_days[FUTURE] and days[-1] > current_date:
             return False
 
-        if (filter_date[ONE_DAY] and not multiple_days) or (filter_date[MUL_DAY] and multiple_days):
+        if (filter_days[ONE_DAY] and not multiple_days) or (filter_days[MUL_DAY] and multiple_days):
             return True
 
-        if filter_date[TODAY] and days[0] <= current_date <= days[-1]:
+        if filter_days[TODAY] and days[0] <= current_date <= days[-1]:
             return True
 
-        if filter_date[FUTURE] and days[-1] > current_date:
+        if filter_days[FUTURE] and days[-1] > current_date:
             return True
 
-        if filter_date[PAST] and days[-1] < current_date:
+        if filter_days[PAST] and days[-1] < current_date:
             return True
 
         return False
@@ -206,10 +206,11 @@ class SiouxParser:
                 time = date[0].strftime('%d/%m/%Y') + " - " + date[1].strftime('%d/%m/%Y')
             elif len(date) == 1 or date[0] == date[1]:
                 time = date[0].strftime('%d/%m/%Y')
+            else:
+                time = None
             result = {'date': time, 'title': title, 'location': loc, 'category': cat}
             results.append(result)
         return results
-
 
     def get_next_event(self, filter_cat, filter_date, filter_title=""):
         """
@@ -251,18 +252,18 @@ if __name__ == "__main__":
     parser.get_events()
 
     # Set filters
-    filter_category = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
-    filter_date = parser.filter_events_date(one_day=True, mul_day=True, today=True, future=True, past=False)
+    filter_category_dict = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
+    filter_date_dict = parser.filter_events_date(one_day=True, mul_day=True, today=True, future=True, past=False)
 
     # Retrieve events
-    events = parser.parse_events(filter_category, filter_date)
-    # events = parser.get_next_event(filter_category, filter_date, "in the cloud")
+    events_dict = parser.parse_events(filter_category_dict, filter_date_dict)
+    # events = parser.get_next_event(filter_category_dict, filter_date_dict, "in the cloud")
 
-    for event in events:
+    for event in events_dict:
         print 'Title: \t\t%s' % event['title']
         print 'Date: \t\t%s' % event['date']
         print 'Location: \t%s' % event['location']
         print 'Category: \t%s' % event['category']
         print ''
 
-    bdays = parser.get_recent_birthdays()
+    bdays_dict = parser.get_recent_birthdays()
