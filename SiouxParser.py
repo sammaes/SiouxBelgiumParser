@@ -42,14 +42,14 @@ def parse_date(string):
 
 
 class SiouxParser:
-    """
-    Parser for Sioux BE intranet.
-
-    Keyword arguments:
-    path_config_file -- path to the configuration file (default: current directory)
-    """
 
     def __init__(self, path_config_file=None):
+        """
+        Parser for Sioux BE intranet.
+    
+        Keyword arguments:
+        path_config_file -- path to the configuration file (default: current directory)
+        """
         self.conf = ConfigParser.ConfigParser()
 
         path = path_config_file if path_config_file is not None else os.getcwd() + '/'
