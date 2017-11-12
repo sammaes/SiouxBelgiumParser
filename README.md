@@ -12,6 +12,9 @@ This script is only meant for Sioux Belgium employees.
   - requests_ntlm
   - beautifulsoup4
   - pyopenssl
+  
+### locale
+Because this website is written in dutch it is required to have <b>nl_BE</b> enabled.
 
 ### .netrc
 For authentication to the website add following to your .netrc file:
