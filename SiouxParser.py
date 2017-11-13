@@ -148,6 +148,9 @@ class SiouxParser:
         if not filter_days[FUTURE] and days[-1] > current_date:
             return False
 
+        if not filter_days[TODAY] and days[0] <= current_date <= days[-1]:
+            return False
+
         if (filter_days[ONE_DAY] and not multiple_days) or (filter_days[MUL_DAY] and multiple_days):
             return True
 
