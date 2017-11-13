@@ -64,7 +64,7 @@ class SiouxParser:
 
         self.__iis_domain = self.conf.get('URLS', 'IIS_DOMAIN')
         self.__baseUrl = self.conf.get('URLS', 'BASE')
-        self.__eventsUrl = self.__baseUrl + self.conf.get('URLS', 'EVENTS_EXT')
+        self.__eventsOverviewUrl = self.__baseUrl + self.conf.get('URLS', 'EVENTS_OVERVIEW_EXT')
         self.__birtdayUrl = self.__baseUrl + self.conf.get('URLS', 'BDAY_EXT')
         self.__session = None
 
@@ -172,12 +172,13 @@ class SiouxParser:
         if self.__session is None:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
+        events_base_url = self.conf.get('URLS', 'EVENTS_EXT')
         parse_element = self.conf.get('PARSE_EV', 'ELEMENT')
         parse_arg = self.conf.get('PARSE_EV', 'ARG')
-        req = self.__session.get(self.__eventsUrl)
+        req = self.__session.get(self.__eventsOverviewUrl)
         soup = BeautifulSoup(req.content, "html.parser")
 
-        dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": []}
+        dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": [], "Url": []}
 
         dates = [parse_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_DATE')})]
         titles = soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_TITLE')})
@@ -189,6 +190,7 @@ class SiouxParser:
             dict_events['Titles'].append(prettify_string(titleEv.text))
             dict_events['Location'].append(prettify_string(locEv.text))
             dict_events['Category'].append(catEv)
+            dict_events['Url'].append(events_base_url + titleEv.find('a', href=True)['href'])
 
         self.RAW_EVENTS = dict_events
 
@@ -204,7 +206,7 @@ class SiouxParser:
 
         events = self.RAW_EVENTS
 
-        for date, title, loc, cat in zip(events['Dates'], events['Titles'], events['Location'], events['Category']):
+        for date, title, loc, cat, url in zip(events['Dates'], events['Titles'], events['Location'], events['Category'], events['Url']):
             if not (filter_title in title and filter_cat[cat] and self.__validate_day(date, filter_date)):
                 continue
             if len(date) == 2 and date[0] != date[1]:
@@ -213,7 +215,7 @@ class SiouxParser:
                 time = date[0].strftime('%d/%m/%Y')
             else:
                 time = None
-            result = {'date': time, 'title': title, 'location': loc, 'category': cat}
+            result = {'date': time, 'title': title, 'location': loc, 'category': cat, 'url': url}
             results.append(result)
         return results
 
@@ -268,4 +270,5 @@ if __name__ == "__main__":
         print 'Date: \t\t%s' % event['date']
         print 'Location: \t%s' % event['location']
         print 'Category: \t%s' % event['category']
+        print 'Url: \t\t%s' % event['url']
         print ''
