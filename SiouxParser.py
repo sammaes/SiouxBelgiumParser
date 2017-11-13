@@ -29,7 +29,7 @@ def prettify_string(string):
     return string.strip().replace('\n', '').replace('\t', '')
 
 
-def parse_date(string):
+def parse_event_date(string):
     """
     Parse string to find all dates.
     Returns a list of dates in datetime.date format.
@@ -92,7 +92,7 @@ class SiouxParser:
 
         dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": [], "Url": []}
 
-        dates = [parse_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_DATE')})]
+        dates = [parse_event_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_DATE')})]
         titles = soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_TITLE')})
         location = soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_LOCATION')})
         category = [prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_CATEGORY')})]
@@ -277,9 +277,9 @@ class SiouxParser:
         Returns a list with date filters.
 
         Keyword arguments:
-        today   -- include today's events (boolean)
-        future  -- include future events (boolean)
-        past    -- include events that already happened (boolean)
+        today   -- include today's birthdays (boolean)
+        future  -- include future birthdays (boolean)
+        past    -- include birthdays that already happened (boolean)
         """
         filter_bday = []
 
@@ -295,7 +295,7 @@ class SiouxParser:
     def parse_events(self, filter_cat, filter_date, filter_title=""):
         """
         Parse and filter all events into a list of dictionaries.
-        Returns: List of dictionaries with keys: date, title, location, category.
+        Returns: List of dictionaries with keys: date, title, location, category, url.
         """
         results = []
 
