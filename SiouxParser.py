@@ -107,6 +107,9 @@ class SiouxParser:
         self.RAW_EVENTS = dict_events
 
     def __get_recent_birthdays(self):
+        """
+        Get all recent birthdays from the bday page and store it in the member RAW_BDAYS
+        """
         if self.__session is None:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
@@ -135,7 +138,7 @@ class SiouxParser:
     @staticmethod
     def __validate_day(days, filter_days):
         """
-        Validates given days based on the filter created in filter_events_date method.
+        Validates given days based on the filter created in filter_events_date/filter_bday method.
         Returns true if dates respect filter settings, false otherwise.
         """
         if days is None:
@@ -238,7 +241,7 @@ class SiouxParser:
     @staticmethod
     def filter_events_date(one_day, mul_day, today, future, past):
         """
-        Creates a filter to be used in the get_events method.
+        Creates a filter to be used in the parse_events method.
         Returns a dictionary with date filters as a key and their respective boolean argument as value.
 
         Keyword arguments:
@@ -251,6 +254,15 @@ class SiouxParser:
         return {ONE_DAY: one_day, MUL_DAY: mul_day, TODAY: today, FUTURE: future, PAST: past}
 
     def filter_bday(self, today, future, past):
+        """
+        Creates a filter to be used in the parse_birthdays method.
+        Returns a dictionary with date filters as a key and their respective boolean argument as value.
+
+        Keyword arguments:
+        today   -- include today's events (boolean)
+        future  -- include future events (boolean)
+        past    -- include events that already happened (boolean)
+        """
         return self.filter_events_date(True, True, today, future, past)
 
     def parse_events(self, filter_cat, filter_date, filter_title=""):
