@@ -84,13 +84,6 @@ class SiouxParser:
         """
         return self.__eventsOverviewUrl
 
-    def get_base_url(self):
-        """
-        Getter for the intranet base URL.
-        Returns a string containing the base URL.
-        """
-        return self.__baseUrl
-
     def filter_events_category(self, social_partner, social_colleague, powwow, training, exp_group):
         """
         Creates a filter to be used in the get_events method.
@@ -246,7 +239,7 @@ class SiouxParser:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
         req = self.__session.get(self.__birtdayUrl)
-        soup = BeautifulSoup(req.content)
+        soup = BeautifulSoup(req.content, "html.parser")
 
         dict_bday = {'Name': [], 'Date': [], 'Role': []}
 
