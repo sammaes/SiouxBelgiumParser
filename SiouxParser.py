@@ -231,13 +231,14 @@ class SiouxParser:
         if self.__session is None:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
-        bdays = []
-
         req = self.__session.get(self.__birtdayUrl)
         soup = BeautifulSoup(req.content)
 
+        dict_bday = {'Name': [], 'Date': [], 'Role': []}
+
         bday = soup.find_all(self.conf.get('PARSE_BDAY', 'ELEMENT'), {self.conf.get('PARSE_BDAY', 'ARG'): self.conf.get('PARSE_BDAY', 'VALUE_OVERALL')})
         bdaylist = bday[0].findAll(self.conf.get('PARSE_BDAY', 'VALUE_SEPARATE'))
+
         for entry in bdaylist:
             regex_name = re.findall("(.+) \(", entry.text)
             regex_date = re.findall("\((\d{1,2} [a-z]+)\)", entry.text)
@@ -246,10 +247,28 @@ class SiouxParser:
             role = entry['class'][0]
             date = datetime.strptime(regex_date[0], "%d %b").date().replace(year=datetime.now().date().year)
 
-            result = {'name': name, 'date': date, 'role': role}
-            bdays.append(result)
+            dict_bday['Name'].append(name)
+            dict_bday['Date'].append(date)
+            dict_bday['Role'].append(role)
 
-        self.RAW_BDAYS = bdays
+        self.RAW_BDAYS = dict_bday
+
+    def parse_birthdays(self):
+        """
+        Parse and filter all birthdays into a list of dictionaries.
+        Returns: List of dictionaries with keys: name, date, role.
+        """
+        results = []
+
+        if self.RAW_BDAYS is None:
+            self.__get_recent_birthdays()
+
+        bdays = self.RAW_BDAYS
+
+        for name, date, role in zip(bdays['Name'], bdays['Date'], bdays['Role']):
+            result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role}
+            results.append(result)
+        return results
 
 
 # Main program:
@@ -265,10 +284,19 @@ if __name__ == "__main__":
     events_dict = parser.parse_events(filter_category_dict, filter_date_dict)
     # events = parser.get_next_event(filter_category_dict, filter_date_dict, "in the cloud")
 
+    # Retrieve birthdays
+    bday_dict = parser.parse_birthdays()
+
     for event in events_dict:
         print 'Title: \t\t%s' % event['title']
         print 'Date: \t\t%s' % event['date']
         print 'Location: \t%s' % event['location']
         print 'Category: \t%s' % event['category']
         print 'Url: \t\t%s' % event['url']
+        print ''
+
+    for birthday in bday_dict:
+        print 'Name: \t%s' % birthday['name']
+        print 'Date: \t%s' % birthday['date']
+        print 'Role: \t%s' % birthday['role']
         print ''
