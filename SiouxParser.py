@@ -76,6 +76,13 @@ class SiouxParser:
         self.__evCatExpGroup = self.conf.get('EVENTS', 'EXP_GROUP')
 
         locale.setlocale(locale.LC_TIME, "nl_BE")
+        
+    def get_events_overview_url(self):
+        """
+        Getter for the events overview URL.
+        Returns a string containing the events overview URL.
+        """
+        return self.__eventsOverviewUrl
 
     def filter_events_category(self, social_partner, social_colleague, powwow, training, exp_group):
         """
