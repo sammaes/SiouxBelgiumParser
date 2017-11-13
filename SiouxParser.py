@@ -249,7 +249,7 @@ class SiouxParser:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
         req = self.__session.get(self.__birtdayUrl)
-        soup = BeautifulSoup(req.content)
+        soup = BeautifulSoup(req.content, "html.parser")
 
         dict_bday = {'Name': [], 'Date': [], 'Role': []}
 
