@@ -76,56 +76,61 @@ class SiouxParser:
         self.__evCatExpGroup = self.conf.get('EVENTS', 'EXP_GROUP')
 
         locale.setlocale(locale.LC_TIME, "nl_BE")
-        
-    def get_events_overview_url(self):
-        """
-        Getter for the events overview URL.
-        Returns a string containing the events overview URL.
-        """
-        return self.__eventsOverviewUrl
 
-    def get_base_url(self):
+    def __get_events(self):
         """
-        Getter for the intranet base URL.
-        Returns a string containing the base URL.
+        Get all events from the events page and store it in the member RAW_EVENTS
         """
-        return self.__baseUrl
+        if self.__session is None:
+            raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
-    def filter_events_category(self, social_partner, social_colleague, powwow, training, exp_group):
-        """
-        Creates a filter to be used in the get_events method.
-        Returns a dictionary with event categories as a key and their respective boolean argument as value.
+        events_base_url = self.conf.get('URLS', 'EVENTS_EXT')
+        parse_element = self.conf.get('PARSE_EV', 'ELEMENT')
+        parse_arg = self.conf.get('PARSE_EV', 'ARG')
+        req = self.__session.get(self.__eventsOverviewUrl)
+        soup = BeautifulSoup(req.content, "html.parser")
 
-        Keyword arguments:
-        social_partner   -- include socials with partner (boolean)
-        social_colleague -- include socials with colleague (boolean)
-        powwow           -- include powwows (boolean)
-        training         -- include trainings (boolean)
-        exp_group        -- include expertise group meetings (boolean)
-        """
-        d = dict.fromkeys([self.__evCatSocialPartner, self.__evCatSocialColleague, self.__evCatPowwow, self.__evCatTraining, self.__evCatExpGroup])
-        d[self.__evCatSocialPartner] = social_partner
-        d[self.__evCatSocialColleague] = social_colleague
-        d[self.__evCatPowwow] = powwow
-        d[self.__evCatTraining] = training
-        d[self.__evCatExpGroup] = exp_group
+        dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": [], "Url": []}
 
-        return d
+        dates = [parse_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_DATE')})]
+        titles = soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_TITLE')})
+        location = soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_LOCATION')})
+        category = [prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_CATEGORY')})]
 
-    @staticmethod
-    def filter_events_date(one_day, mul_day, today, future, past):
-        """
-        Creates a filter to be used in the get_events method.
-        Returns a dictionary with date filters as a key and their respective boolean argument as value.
+        for dateEv, titleEv, locEv, catEv in zip(dates, titles, location, category):
+            dict_events['Dates'].append(dateEv)
+            dict_events['Titles'].append(prettify_string(titleEv.text))
+            dict_events['Location'].append(prettify_string(locEv.text))
+            dict_events['Category'].append(catEv)
+            dict_events['Url'].append(events_base_url + titleEv.find('a', href=True)['href'])
 
-        Keyword arguments:
-        one_day -- include single day events (boolean)
-        mul_day -- include events that span over multiple days (boolean)
-        today   -- include today's events (boolean)
-        future  -- include future events (boolean)
-        past    -- include events that already happened (boolean)
-        """
-        return {ONE_DAY: one_day, MUL_DAY: mul_day, TODAY: today, FUTURE: future, PAST: past}
+        self.RAW_EVENTS = dict_events
+
+    def __get_recent_birthdays(self):
+        if self.__session is None:
+            raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
+
+        req = self.__session.get(self.__birtdayUrl)
+        soup = BeautifulSoup(req.content, "html.parser")
+
+        dict_bday = {'Name': [], 'Date': [], 'Role': []}
+
+        bday = soup.find_all(self.conf.get('PARSE_BDAY', 'ELEMENT'), {self.conf.get('PARSE_BDAY', 'ARG'): self.conf.get('PARSE_BDAY', 'VALUE_OVERALL')})
+        bdaylist = bday[0].findAll(self.conf.get('PARSE_BDAY', 'VALUE_SEPARATE'))
+
+        for entry in bdaylist:
+            regex_name = re.findall("(.+) \(", entry.text)
+            regex_date = re.findall("\((\d{1,2} [a-z]+)\)", entry.text)
+
+            name = regex_name[0]
+            role = entry['class'][0]
+            date = datetime.strptime(regex_date[0], "%d %b").date().replace(year=datetime.now().date().year)
+
+            dict_bday['Name'].append(name)
+            dict_bday['Date'].append(date)
+            dict_bday['Role'].append(role)
+
+        self.RAW_BDAYS = dict_bday
 
     @staticmethod
     def __validate_day(days, filter_days):
@@ -182,34 +187,63 @@ class SiouxParser:
         self.__session = requests.Session()
         self.__session.auth = HttpNtlmAuth(username, password)
 
-    def __get_events(self):
+    def get_base_url(self):
         """
-        Get all events from the events page and store it in the member RAW_EVENTS
+        Getter for the intranet base URL.
+        Returns a string containing the base URL.
         """
-        if self.__session is None:
-            raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
+        return self.__baseUrl
 
-        events_base_url = self.conf.get('URLS', 'EVENTS_EXT')
-        parse_element = self.conf.get('PARSE_EV', 'ELEMENT')
-        parse_arg = self.conf.get('PARSE_EV', 'ARG')
-        req = self.__session.get(self.__eventsOverviewUrl)
-        soup = BeautifulSoup(req.content, "html.parser")
+    def get_events_overview_url(self):
+        """
+        Getter for the events overview URL.
+        Returns a string containing the events overview URL.
+        """
+        return self.__eventsOverviewUrl
 
-        dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": [], "Url": []}
+    def get_next_event(self, filter_cat, filter_date, filter_title=""):
+        """
+        Parse and filter the first event into a dictionary.
+        Returns: Dictionary with keys: date, title, location, category.
+        """
+        events = self.parse_events(filter_cat, filter_date, filter_title)
+        return events[0] if len(events) else []
 
-        dates = [parse_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_DATE')})]
-        titles = soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_TITLE')})
-        location = soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_LOCATION')})
-        category = [prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_CATEGORY')})]
+    def filter_events_category(self, social_partner, social_colleague, powwow, training, exp_group):
+        """
+        Creates a filter to be used in the get_events method.
+        Returns a dictionary with event categories as a key and their respective boolean argument as value.
 
-        for dateEv, titleEv, locEv, catEv in zip(dates, titles, location, category):
-            dict_events['Dates'].append(dateEv)
-            dict_events['Titles'].append(prettify_string(titleEv.text))
-            dict_events['Location'].append(prettify_string(locEv.text))
-            dict_events['Category'].append(catEv)
-            dict_events['Url'].append(events_base_url + titleEv.find('a', href=True)['href'])
+        Keyword arguments:
+        social_partner   -- include socials with partner (boolean)
+        social_colleague -- include socials with colleague (boolean)
+        powwow           -- include powwows (boolean)
+        training         -- include trainings (boolean)
+        exp_group        -- include expertise group meetings (boolean)
+        """
+        d = dict.fromkeys([self.__evCatSocialPartner, self.__evCatSocialColleague, self.__evCatPowwow, self.__evCatTraining, self.__evCatExpGroup])
+        d[self.__evCatSocialPartner] = social_partner
+        d[self.__evCatSocialColleague] = social_colleague
+        d[self.__evCatPowwow] = powwow
+        d[self.__evCatTraining] = training
+        d[self.__evCatExpGroup] = exp_group
 
-        self.RAW_EVENTS = dict_events
+        return d
+
+    @staticmethod
+    def filter_events_date(one_day, mul_day, today, future, past):
+        """
+        Creates a filter to be used in the get_events method.
+        Returns a dictionary with date filters as a key and their respective boolean argument as value.
+
+        Keyword arguments:
+        one_day -- include single day events (boolean)
+        mul_day -- include events that span over multiple days (boolean)
+        today   -- include today's events (boolean)
+        future  -- include future events (boolean)
+        past    -- include events that already happened (boolean)
+        """
+        return {ONE_DAY: one_day, MUL_DAY: mul_day, TODAY: today, FUTURE: future, PAST: past}
 
     def parse_events(self, filter_cat, filter_date, filter_title=""):
         """
@@ -235,40 +269,6 @@ class SiouxParser:
             result = {'date': time, 'title': title, 'location': loc, 'category': cat, 'url': url}
             results.append(result)
         return results
-
-    def get_next_event(self, filter_cat, filter_date, filter_title=""):
-        """
-        Parse and filter the first event into a dictionary.
-        Returns: Dictionary with keys: date, title, location, category.
-        """
-        events = self.parse_events(filter_cat, filter_date, filter_title)
-        return events[0] if len(events) else []
-
-    def __get_recent_birthdays(self):
-        if self.__session is None:
-            raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
-
-        req = self.__session.get(self.__birtdayUrl)
-        soup = BeautifulSoup(req.content, "html.parser")
-
-        dict_bday = {'Name': [], 'Date': [], 'Role': []}
-
-        bday = soup.find_all(self.conf.get('PARSE_BDAY', 'ELEMENT'), {self.conf.get('PARSE_BDAY', 'ARG'): self.conf.get('PARSE_BDAY', 'VALUE_OVERALL')})
-        bdaylist = bday[0].findAll(self.conf.get('PARSE_BDAY', 'VALUE_SEPARATE'))
-
-        for entry in bdaylist:
-            regex_name = re.findall("(.+) \(", entry.text)
-            regex_date = re.findall("\((\d{1,2} [a-z]+)\)", entry.text)
-
-            name = regex_name[0]
-            role = entry['class'][0]
-            date = datetime.strptime(regex_date[0], "%d %b").date().replace(year=datetime.now().date().year)
-
-            dict_bday['Name'].append(name)
-            dict_bday['Date'].append(date)
-            dict_bday['Role'].append(role)
-
-        self.RAW_BDAYS = dict_bday
 
     def parse_birthdays(self):
         """
