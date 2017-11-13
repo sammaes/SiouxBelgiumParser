@@ -42,8 +42,8 @@ def parse_event_date(string):
 
 
 class SiouxParser:
-    RAW_EVENTS = None
-    RAW_BDAYS = None
+    __RAW_EVENTS = None
+    __RAW_BDAYS = None
 
     def __init__(self, path_config_file=None):
         """
@@ -52,30 +52,33 @@ class SiouxParser:
         Keyword arguments:
         path_config_file -- path to the configuration file (default: current directory)
         """
-        self.conf = ConfigParser.ConfigParser()
+        self.__conf = ConfigParser.ConfigParser()
 
         path = path_config_file if path_config_file is not None else os.getcwd()
         config_file = os.path.join(path, CONFIG_FILE)
 
         if os.path.isfile(config_file):
-            self.conf.read(config_file)
+            self.__conf.read(config_file)
         else:
             raise RuntimeError("Could not locate config file '%s'." % config_file)
 
-        self.__iis_domain = self.conf.get('URLS', 'IIS_DOMAIN')
-        self.__baseUrl = self.conf.get('URLS', 'BASE')
-        self.__eventsOverviewUrl = self.__baseUrl + self.conf.get('URLS', 'EVENTS_OVERVIEW_EXT')
-        self.__birtdayUrl = self.__baseUrl + self.conf.get('URLS', 'BDAY_EXT')
+        self.__iis_domain = self.__get_config('URLS', 'IIS_DOMAIN')
+        self.__baseUrl = self.__get_config('URLS', 'BASE')
+        self.__eventsOverviewUrl = self.__baseUrl + self.__get_config('URLS', 'EVENTS_OVERVIEW_EXT')
+        self.__birtdayUrl = self.__baseUrl + self.__get_config('URLS', 'BDAY_EXT')
         self.__session = None
 
         # Event categories:
-        self.__evCatSocialPartner = self.conf.get('EVENTS', 'SOCIAL_PARTNER')
-        self.__evCatSocialColleague = self.conf.get('EVENTS', 'SOCIAL_COLLEAGUE')
-        self.__evCatPowwow = self.conf.get('EVENTS', 'POWWOW')
-        self.__evCatTraining = self.conf.get('EVENTS', 'TRAINING')
-        self.__evCatExpGroup = self.conf.get('EVENTS', 'EXP_GROUP')
+        self.__evCatSocialPartner = self.__get_config('EVENTS', 'SOCIAL_PARTNER')
+        self.__evCatSocialColleague = self.__get_config('EVENTS', 'SOCIAL_COLLEAGUE')
+        self.__evCatPowwow = self.__get_config('EVENTS', 'POWWOW')
+        self.__evCatTraining = self.__get_config('EVENTS', 'TRAINING')
+        self.__evCatExpGroup = self.__get_config('EVENTS', 'EXP_GROUP')
 
         locale.setlocale(locale.LC_TIME, "nl_BE")
+
+    def __get_config(self, key, value):
+        return self.__conf.get(key, value)
 
     def __get_events(self):
         """
@@ -84,18 +87,18 @@ class SiouxParser:
         if self.__session is None:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
-        events_base_url = self.conf.get('URLS', 'EVENTS_EXT')
-        parse_element = self.conf.get('PARSE_EV', 'ELEMENT')
-        parse_arg = self.conf.get('PARSE_EV', 'ARG')
+        events_base_url = self.__get_config('URLS', 'EVENTS_EXT')
+        parse_element = self.__get_config('PARSE_EV', 'ELEMENT')
+        parse_arg = self.__get_config('PARSE_EV', 'ARG')
         req = self.__session.get(self.__eventsOverviewUrl)
         soup = BeautifulSoup(req.text, "html.parser")
 
         dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": [], "Url": []}
 
-        dates = [parse_event_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_DATE')})]
-        titles = soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_TITLE')})
-        location = soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_LOCATION')})
-        category = [prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self.conf.get('PARSE_EV', 'VALUE_CATEGORY')})]
+        dates = [parse_event_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_DATE')})]
+        titles = soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_TITLE')})
+        location = soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_LOCATION')})
+        category = [prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_CATEGORY')})]
 
         for dateEv, titleEv, locEv, catEv in zip(dates, titles, location, category):
             dict_events['Dates'].append(dateEv)
@@ -104,7 +107,7 @@ class SiouxParser:
             dict_events['Category'].append(catEv)
             dict_events['Url'].append(events_base_url + titleEv.find('a', href=True)['href'])
 
-        self.RAW_EVENTS = dict_events
+        self.__RAW_EVENTS = dict_events
 
     def __get_recent_birthdays(self):
         """
@@ -116,13 +119,13 @@ class SiouxParser:
         req = self.__session.get(self.__birtdayUrl)
         soup = BeautifulSoup(req.text, "html.parser")
 
-        position_today = req.text.find(self.conf.get('PARSE_BDAY', 'TITLE_TODAY'))
-        position_future = req.text.find(self.conf.get('PARSE_BDAY', 'TITLE_FUTURE'))
-        position_past = req.text.find(self.conf.get('PARSE_BDAY', 'TITLE_PAST'))
+        position_today = req.text.find(self.__get_config('PARSE_BDAY', 'TITLE_TODAY'))
+        position_future = req.text.find(self.__get_config('PARSE_BDAY', 'TITLE_FUTURE'))
+        position_past = req.text.find(self.__get_config('PARSE_BDAY', 'TITLE_PAST'))
         dict_bday = {'Name': [], 'Date': [], 'Role': [], 'RelativeTime': []}
 
-        bday = soup.find_all(self.conf.get('PARSE_BDAY', 'ELEMENT'), {self.conf.get('PARSE_BDAY', 'ARG'): self.conf.get('PARSE_BDAY', 'VALUE_OVERALL')})
-        bdaylist = bday[0].findAll(self.conf.get('PARSE_BDAY', 'VALUE_SEPARATE'))
+        bday = soup.find_all(self.__get_config('PARSE_BDAY', 'ELEMENT'), {self.__get_config('PARSE_BDAY', 'ARG'): self.__get_config('PARSE_BDAY', 'VALUE_OVERALL')})
+        bdaylist = bday[0].findAll(self.__get_config('PARSE_BDAY', 'VALUE_SEPARATE'))
 
         for entry in bdaylist:
             if position_today < req.text.find(entry.text) < position_future:
@@ -150,7 +153,7 @@ class SiouxParser:
             dict_bday['Date'].append(date)
             dict_bday['Role'].append(role)
 
-        self.RAW_BDAYS = dict_bday
+        self.__RAW_BDAYS = dict_bday
 
     @staticmethod
     def __validate_day(days, filter_days):
@@ -299,10 +302,10 @@ class SiouxParser:
         """
         results = []
 
-        if self.RAW_EVENTS is None:
+        if self.__RAW_EVENTS is None:
             self.__get_events()
 
-        events = self.RAW_EVENTS
+        events = self.__RAW_EVENTS
 
         for date, title, loc, cat, url in zip(events['Dates'], events['Titles'], events['Location'], events['Category'], events['Url']):
             if not (filter_title in title and filter_cat[cat] and self.__validate_day(date, filter_date)):
@@ -324,10 +327,10 @@ class SiouxParser:
         """
         results = []
 
-        if self.RAW_BDAYS is None:
+        if self.__RAW_BDAYS is None:
             self.__get_recent_birthdays()
 
-        bdays = self.RAW_BDAYS
+        bdays = self.__RAW_BDAYS
 
         for name, date, role, rel_time in zip(bdays['Name'], bdays['Date'], bdays['Role'], bdays['RelativeTime']):
             if rel_time in filter_bday:
