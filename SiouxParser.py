@@ -111,7 +111,7 @@ class SiouxParser:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
         req = self.__session.get(self.__birtdayUrl)
-        soup = BeautifulSoup(req.content, "html.parser")
+        soup = BeautifulSoup(req.content, "lxml")
 
         dict_bday = {'Name': [], 'Date': [], 'Role': []}
 
@@ -142,9 +142,14 @@ class SiouxParser:
             raise RuntimeError('Event has no date!')
 
         current_date = datetime.now().date()
-        multiple_days = len(days) > 1 and (days[0] != days[1])
 
-        if (not filter_days[ONE_DAY] and not multiple_days) or (not filter_days[MUL_DAY] and not multiple_days):
+        if len(days) == 1:
+            multiple_days = False
+        else:
+            multiple_days = len(days) > 1 and (days[0] != days[1])
+        one_day = not multiple_days
+
+        if (not filter_days[ONE_DAY] and one_day) or (not filter_days[MUL_DAY] and multiple_days):
             return False
 
         if not filter_days[PAST] and days[-1] < current_date:
@@ -156,7 +161,7 @@ class SiouxParser:
         if not filter_days[TODAY] and days[0] <= current_date <= days[-1]:
             return False
 
-        if (filter_days[ONE_DAY] and not multiple_days) or (filter_days[MUL_DAY] and multiple_days):
+        if (filter_days[ONE_DAY] and one_day) or (filter_days[MUL_DAY] and multiple_days):
             return True
 
         if filter_days[TODAY] and days[0] <= current_date <= days[-1]:
@@ -245,6 +250,9 @@ class SiouxParser:
         """
         return {ONE_DAY: one_day, MUL_DAY: mul_day, TODAY: today, FUTURE: future, PAST: past}
 
+    def filter_bday(self, today, future, past):
+        return self.filter_events_date(True, True, today, future, past)
+
     def parse_events(self, filter_cat, filter_date, filter_title=""):
         """
         Parse and filter all events into a list of dictionaries.
@@ -270,7 +278,7 @@ class SiouxParser:
             results.append(result)
         return results
 
-    def parse_birthdays(self):
+    def parse_birthdays(self, filter_bday):
         """
         Parse and filter all birthdays into a list of dictionaries.
         Returns: List of dictionaries with keys: name, date, role.
@@ -283,8 +291,9 @@ class SiouxParser:
         bdays = self.RAW_BDAYS
 
         for name, date, role in zip(bdays['Name'], bdays['Date'], bdays['Role']):
-            result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role}
-            results.append(result)
+            if self.__validate_day([date], filter_bday):
+                result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role}
+                results.append(result)
         return results
 
 
@@ -296,13 +305,14 @@ if __name__ == "__main__":
     # Set filters
     filter_category_dict = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
     filter_date_dict = parser.filter_events_date(one_day=True, mul_day=True, today=True, future=True, past=False)
+    filter_bday_dict = parser.filter_bday(today=True, future=True, past=False)
 
     # Retrieve events
     events_dict = parser.parse_events(filter_category_dict, filter_date_dict)
     # events = parser.get_next_event(filter_category_dict, filter_date_dict, "in the cloud")
 
     # Retrieve birthdays
-    bday_dict = parser.parse_birthdays()
+    bday_dict = parser.parse_birthdays(filter_bday_dict)
 
     for event in events_dict:
         print 'Title: \t\t%s' % event['title']
