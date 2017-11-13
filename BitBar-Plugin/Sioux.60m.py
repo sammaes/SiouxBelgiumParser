@@ -24,7 +24,6 @@ sioux_sun = "iVBORw0KGgoAAAANSUhEUgAAACYAAAAmCAYAAACoPemuAAABemlDQ1BJQ0MgUHJvZml
 # Initilalise parser and authenticate
 parser = SiouxParser(path_config_file=os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'scripts'))
 parser.authenticate()
-parser.get_events()
 
 # Set filters
 filter_event = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
