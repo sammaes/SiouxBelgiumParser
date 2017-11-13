@@ -116,9 +116,9 @@ class SiouxParser:
         req = self.__session.get(self.__birtdayUrl)
         soup = BeautifulSoup(req.text, "html.parser")
 
-        position_today = req.text.find("Vandaag jarig")
-        position_future = req.text.find("Binnenkort jarig")
-        position_past = req.text.find("Onlangs jarig")
+        position_today = req.text.find(self.conf.get('PARSE_BDAY', 'TITLE_TODAY'))
+        position_future = req.text.find(self.conf.get('PARSE_BDAY', 'TITLE_FUTURE'))
+        position_past = req.text.find(self.conf.get('PARSE_BDAY', 'TITLE_PAST'))
         dict_bday = {'Name': [], 'Date': [], 'Role': [], 'RelativeTime': []}
 
         bday = soup.find_all(self.conf.get('PARSE_BDAY', 'ELEMENT'), {self.conf.get('PARSE_BDAY', 'ARG'): self.conf.get('PARSE_BDAY', 'VALUE_OVERALL')})
