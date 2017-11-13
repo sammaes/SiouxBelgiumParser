@@ -9,7 +9,7 @@ from scripts.SiouxParser import SiouxParser
 
 def print_menu_section(section_title, event, show_cat=False):
     menu_section_title = " font=HelveticaNeue size=10"
-    menu_title = "color=black font=HelveticaNeue-Bold size=13"
+    menu_title = "color=black font=HelveticaNeue-Bold size=13 href=%s" % event['url']
     menu_details = "trim=false font=HelveticaNeue-Italic"
     print "%s | %s" % (section_title, menu_section_title)
     print "%s | %s" % (event['title'], menu_title)
@@ -27,7 +27,7 @@ parser.authenticate()
 
 # Set filters
 filter_event = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
-filter_date = parser.filter_events_date(one_day=True, mul_day=True, today=True, future=True, past=False)
+filter_date = parser.filter_events_date(one_day=True, mul_day=True, today=False, future=True, past=False)
 
 # Get events
 next_general_event = parser.get_next_event(filter_event, filter_date)
@@ -43,7 +43,9 @@ if cloud_event != []:
     print_menu_section("The next cloud event is:", cloud_event)
 if linux_event != []:
     print_menu_section("The next Linux event is:", linux_event)
-print "Visit Intranet | href=http://intranetbe.sioux.eu"
+print "View all events | href=%s" % parser.get_events_overview_url()
+print "---"
+print "Visit Intranet | href=%s" % parser.get_base_url()
 print "Visit Webmail | href=http://webmail.sioux.eu"
 print "---"
 print "Force refresh (current interval: %s) | size=8 refresh=true" % sys.argv[0].split('.')[1]
