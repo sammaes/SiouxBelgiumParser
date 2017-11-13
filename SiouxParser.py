@@ -88,7 +88,7 @@ class SiouxParser:
         parse_element = self.conf.get('PARSE_EV', 'ELEMENT')
         parse_arg = self.conf.get('PARSE_EV', 'ARG')
         req = self.__session.get(self.__eventsOverviewUrl)
-        soup = BeautifulSoup(req.content, "html.parser")
+        soup = BeautifulSoup(req.text, "html.parser")
 
         dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": [], "Url": []}
 
@@ -114,7 +114,7 @@ class SiouxParser:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
         req = self.__session.get(self.__birtdayUrl)
-        soup = BeautifulSoup(req.content, "lxml")
+        soup = BeautifulSoup(req.text, "html.parser")
 
         dict_bday = {'Name': [], 'Date': [], 'Role': []}
 
