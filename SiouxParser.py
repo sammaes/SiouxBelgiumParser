@@ -116,17 +116,29 @@ class SiouxParser:
         req = self.__session.get(self.__birtdayUrl)
         soup = BeautifulSoup(req.text, "html.parser")
 
-        dict_bday = {'Name': [], 'Date': [], 'Role': []}
+        position_today = req.text.find("Vandaag jarig")
+        position_future = req.text.find("Binnenkort jarig")
+        position_past = req.text.find("Onlangs jarig")
+        dict_bday = {'Name': [], 'Date': [], 'Role': [], 'RelativeTime': []}
 
         bday = soup.find_all(self.conf.get('PARSE_BDAY', 'ELEMENT'), {self.conf.get('PARSE_BDAY', 'ARG'): self.conf.get('PARSE_BDAY', 'VALUE_OVERALL')})
         bdaylist = bday[0].findAll(self.conf.get('PARSE_BDAY', 'VALUE_SEPARATE'))
 
         for entry in bdaylist:
+            if position_today < req.text.find(entry.text) < position_future:
+                dict_bday['RelativeTime'].append(TODAY)
+            elif position_future < req.text.find(entry.text) < position_past:
+                dict_bday['RelativeTime'].append(FUTURE)
+            elif position_past < req.text.find(entry.text):
+                dict_bday['RelativeTime'].append(PAST)
+            else:
+                raise RuntimeError(' Parsing bday day failed.')
+
             name = re.findall("(.+) \(", entry.text)[0]
             role = entry['class'][0]
 
             # Some browsers retrieve (Nov 16), (May 16), ... instead of (16 Nov), (Mei 16), ...
-            regex_date = re.findall("\(.+\)", entry.text)[0].replace('(','').replace(')','')
+            regex_date = re.findall("\(.+\)", entry.text)[0].replace('(', '').replace(')', '')
             if regex_date[0].isdigit():  # If we have a date that starts with a digit, we have a dutch date
                 date = datetime.strptime(regex_date, "%d %b").date().replace(year=datetime.now().date().year)
             else:
@@ -143,7 +155,7 @@ class SiouxParser:
     @staticmethod
     def __validate_day(days, filter_days):
         """
-        Validates given days based on the filter created in filter_events_date/filter_bday method.
+        Validates given days based on the filter created in filter_events_date method.
         Returns true if dates respect filter settings, false otherwise.
         """
         if days is None:
@@ -258,17 +270,27 @@ class SiouxParser:
         """
         return {ONE_DAY: one_day, MUL_DAY: mul_day, TODAY: today, FUTURE: future, PAST: past}
 
-    def filter_bday(self, today, future, past):
+    @staticmethod
+    def filter_bday(today, future, past):
         """
         Creates a filter to be used in the parse_birthdays method.
-        Returns a dictionary with date filters as a key and their respective boolean argument as value.
+        Returns a list with date filters.
 
         Keyword arguments:
         today   -- include today's events (boolean)
         future  -- include future events (boolean)
         past    -- include events that already happened (boolean)
         """
-        return self.filter_events_date(True, True, today, future, past)
+        filter_bday = []
+
+        if today:
+            filter_bday.append(TODAY)
+        if future:
+            filter_bday.append(FUTURE)
+        if past:
+            filter_bday.append(PAST)
+
+        return filter_bday
 
     def parse_events(self, filter_cat, filter_date, filter_title=""):
         """
@@ -307,8 +329,8 @@ class SiouxParser:
 
         bdays = self.RAW_BDAYS
 
-        for name, date, role in zip(bdays['Name'], bdays['Date'], bdays['Role']):
-            if self.__validate_day([date], filter_bday):
+        for name, date, role, rel_time in zip(bdays['Name'], bdays['Date'], bdays['Role'], bdays['RelativeTime']):
+            if rel_time in filter_bday:
                 result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role}
                 results.append(result)
         return results
