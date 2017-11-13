@@ -122,12 +122,17 @@ class SiouxParser:
         bdaylist = bday[0].findAll(self.conf.get('PARSE_BDAY', 'VALUE_SEPARATE'))
 
         for entry in bdaylist:
-            regex_name = re.findall("(.+) \(", entry.text)
-            regex_date = re.findall("\((\d{1,2} [a-z]+)\)", entry.text)
-
-            name = regex_name[0]
+            name = re.findall("(.+) \(", entry.text)[0]
             role = entry['class'][0]
-            date = datetime.strptime(regex_date[0], "%d %b").date().replace(year=datetime.now().date().year)
+
+            # Some browsers retrieve (Nov 16), (May 16), ... instead of (16 Nov), (Mei 16), ...
+            regex_date = re.findall("\(.+\)", entry.text)[0].replace('(','').replace(')','')
+            if regex_date[0].isdigit():  # If we have a date that starts with a digit, we have a dutch date
+                date = datetime.strptime(regex_date, "%d %b").date().replace(year=datetime.now().date().year)
+            else:
+                locale.setlocale(locale.LC_TIME, 'en_US')
+                date = datetime.strptime(regex_date, "%b %d").date().replace(year=datetime.now().date().year)
+                locale.setlocale(locale.LC_TIME, 'nl_BE')
 
             dict_bday['Name'].append(name)
             dict_bday['Date'].append(date)
