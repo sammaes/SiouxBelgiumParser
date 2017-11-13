@@ -23,16 +23,20 @@ CONFIG_FILE = 'config.ini'
 
 def prettify_string(string):
     """
-    Remove tabs, newlines and leading/trailing spaces from string.
-    Returns prettified string.
+    Remove tabs, newlines and leading/trailing spaces.
+
+    :param string: String containing clutter.
+    :return: Prettified string. (string)
     """
     return string.strip().replace('\n', '').replace('\t', '')
 
 
 def parse_event_date(string):
     """
-    Parse string to find all dates.
-    Returns a list of dates in datetime.date format.
+    Parse a string to find all event dates.
+
+    :param string: Human readable date.
+    :return: Dates (List of datetime.date)
     """
     m = re.findall("\d\d +[a-z]+ '\d\d", string)
     if m:
@@ -49,8 +53,7 @@ class SiouxParser:
         """
         Parser for Sioux BE intranet.
 
-        Keyword arguments:
-        path_config_file -- path to the configuration file (default: current directory)
+        :param path_config_file: Path to the configuration file. (default: current directory)
         """
         self.__conf = ConfigParser.ConfigParser()
 
@@ -78,11 +81,20 @@ class SiouxParser:
         locale.setlocale(locale.LC_TIME, "nl_BE")
 
     def __get_config(self, key, value):
+        """
+        Get configuration value from config file.
+
+        :param key:   Key found in configuration value. (string)
+        :param value: Value associated with said key. (string)
+        :return: Configuration value. (string)
+        """
         return self.__conf.get(key, value)
 
     def __get_events(self):
         """
-        Get all events from the events page and store it in the member RAW_EVENTS
+        Get all events from the events page and store it in member __RAW_EVENTS.
+
+        :return: None
         """
         if self.__session is None:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
@@ -111,7 +123,9 @@ class SiouxParser:
 
     def __get_recent_birthdays(self):
         """
-        Get all recent birthdays from the bday page and store it in the member RAW_BDAYS
+        Get all recent birthdays from the bday page and store it in the member __RAW_BDAYS.
+
+        :return: None
         """
         if self.__session is None:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
@@ -159,7 +173,10 @@ class SiouxParser:
     def __validate_day(days, filter_days):
         """
         Validates given days based on the filter created in filter_events_date method.
-        Returns true if dates respect filter settings, false otherwise.
+
+        :param days:        List of days in datetime.date format.
+        :param filter_days: Filter to apply on days.
+        :return: True if dates respect filter settings, False otherwise. (boolean)
         """
         if days is None:
             raise RuntimeError('Event has no date!')
@@ -202,8 +219,8 @@ class SiouxParser:
         """
         Authenticate using netrc file.
 
-        Keyword arguments:
-        machine -- machine entry in ~/.netrc file for Sioux BE intranet (string) (default 'siouxehv.nl')
+        :param machine: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default 'siouxehv.nl')
+        :return: None
         """
         if machine is None:
             machine = self.__iis_domain
@@ -218,36 +235,41 @@ class SiouxParser:
     def get_base_url(self):
         """
         Getter for the intranet base URL.
-        Returns a string containing the base URL.
+
+        :return: Base URL. (string)
         """
         return self.__baseUrl
 
     def get_events_overview_url(self):
         """
         Getter for the events overview URL.
-        Returns a string containing the events overview URL.
+
+        :return: Events overview URL. (string)
         """
         return self.__eventsOverviewUrl
 
     def get_next_event(self, filter_cat, filter_date, filter_title=""):
         """
         Parse and filter the first event into a dictionary.
-        Returns: Dictionary with keys: date, title, location, category.
+
+        :param filter_cat:   Filter created in method filter_events_category.
+        :param filter_date:  Filter created in method filter_events_date.
+        :param filter_title: Substring that is required in event title.
+        :return: Next event. (Dictionary with keys: date, title, location, category)
         """
         events = self.parse_events(filter_cat, filter_date, filter_title)
         return events[0] if len(events) else []
 
     def filter_events_category(self, social_partner, social_colleague, powwow, training, exp_group):
         """
-        Creates a filter to be used in the get_events method.
-        Returns a dictionary with event categories as a key and their respective boolean argument as value.
+        Creates a filter to be used in the parse_events method.
 
-        Keyword arguments:
-        social_partner   -- include socials with partner (boolean)
-        social_colleague -- include socials with colleague (boolean)
-        powwow           -- include powwows (boolean)
-        training         -- include trainings (boolean)
-        exp_group        -- include expertise group meetings (boolean)
+        :param social_partner:   Include socials with partner. (boolean)
+        :param social_colleague: Include socials with colleague. (boolean)
+        :param powwow:           Include powwows. (boolean)
+        :param training:         Include trainings. (boolean)
+        :param exp_group:        Include expertise group meetings. (boolean)
+        :return: Events filter bases on categories. (Dictionary with event categories as a key and their respective boolean argument as value.)
         """
         d = dict.fromkeys([self.__evCatSocialPartner, self.__evCatSocialColleague, self.__evCatPowwow, self.__evCatTraining, self.__evCatExpGroup])
         d[self.__evCatSocialPartner] = social_partner
@@ -262,14 +284,13 @@ class SiouxParser:
     def filter_events_date(one_day, mul_day, today, future, past):
         """
         Creates a filter to be used in the parse_events method.
-        Returns a dictionary with date filters as a key and their respective boolean argument as value.
 
-        Keyword arguments:
-        one_day -- include single day events (boolean)
-        mul_day -- include events that span over multiple days (boolean)
-        today   -- include today's events (boolean)
-        future  -- include future events (boolean)
-        past    -- include events that already happened (boolean)
+        :param one_day: Include single day events. (boolean)
+        :param mul_day: Include events that span over multiple days. (boolean)
+        :param today:   Include today's events. (boolean)
+        :param future:  Include future events. (boolean)
+        :param past:    Include events that already happened. (boolean)
+        :return: Events filter based on date requirements. (Dictionary with date filters as a key and their respective boolean argument as value.)
         """
         return {ONE_DAY: one_day, MUL_DAY: mul_day, TODAY: today, FUTURE: future, PAST: past}
 
@@ -277,12 +298,11 @@ class SiouxParser:
     def filter_bday(today, future, past):
         """
         Creates a filter to be used in the parse_birthdays method.
-        Returns a list with date filters.
 
-        Keyword arguments:
-        today   -- include today's birthdays (boolean)
-        future  -- include future birthdays (boolean)
-        past    -- include birthdays that already happened (boolean)
+        :param today:  Include today's birthdays. (boolean)
+        :param future: Include future birthdays. (boolean)
+        :param past:   Include birthdays that already happened. (boolean)
+        :return: Bday filters based on date requirements. (List)
         """
         filter_bday = []
 
@@ -298,7 +318,11 @@ class SiouxParser:
     def parse_events(self, filter_cat, filter_date, filter_title=""):
         """
         Parse and filter all events into a list of dictionaries.
-        Returns: List of dictionaries with keys: date, title, location, category, url.
+
+        :param filter_cat:   Filter created in method filter_events_category.
+        :param filter_date:  Filter created in method filter_events_date.
+        :param filter_title: Substring that is required in event title.
+        :return: Events (List of dictionaries with keys: date, title, location, category, url.)
         """
         results = []
 
@@ -323,7 +347,9 @@ class SiouxParser:
     def parse_birthdays(self, filter_bday):
         """
         Parse and filter all birthdays into a list of dictionaries.
-        Returns: List of dictionaries with keys: name, date, role.
+
+        :param filter_bday: Filter created in method filter_bday.
+        :return: Birthdays (List of dictionaries with keys: name, date, role.)
         """
         results = []
 
