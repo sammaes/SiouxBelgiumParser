@@ -156,6 +156,14 @@ class SiouxParser:
 
             # Some browsers retrieve (Nov 16), (May 16), ... instead of (16 Nov), (Mei 16), ...
             regex_date = re.findall("\(.+\)", entry.text)[0].replace('(', '').replace(')', '')
+            try:
+                # If the birthday is today, then the site will show the age instead of the date
+                # Trying to split on a space will fail then
+                regex_date.split(' ')[1]
+            except IndexError:
+                # We then can fix it by inserting todays date
+                locale.setlocale(locale.LC_TIME, 'nl_BE')
+                regex_date = datetime.now().strftime("%d %b")
             if regex_date[0].isdigit():  # If we have a date that starts with a digit, we have a dutch date
                 date = datetime.strptime(regex_date, "%d %b").date().replace(year=datetime.now().date().year)
             else:
