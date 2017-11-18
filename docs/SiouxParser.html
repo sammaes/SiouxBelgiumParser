@@ -1349,18 +1349,22 @@ table {
 
         <span class="k">return</span> <span class="bp">False</span>
 
-    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Authenticate using netrc file.\n</span>
 
-<span class="sd">        :param machine: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default &#39;siouxehv.nl&#39;)\n</span>
+<span class="sd">        :param host: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default &#39;siouxehv.nl&#39;)\n</span>
 <span class="sd">        :return: None\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">machine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__iis_domain</span>
+        <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__iis_domain</span>
 
         <span class="n">secrets</span> <span class="o">=</span> <span class="n">netrc</span><span class="o">.</span><span class="n">netrc</span><span class="p">()</span>
-        <span class="n">username</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">authenticators</span><span class="p">(</span><span class="n">machine</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">authenticators</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid host provided!&quot;</span><span class="p">)</span>
+
+        <span class="n">username</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">ret</span>
         <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__iis_domain</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">username</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
@@ -1815,18 +1819,22 @@ table {
 
         <span class="k">return</span> <span class="bp">False</span>
 
-    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Authenticate using netrc file.\n</span>
 
-<span class="sd">        :param machine: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default &#39;siouxehv.nl&#39;)\n</span>
+<span class="sd">        :param host: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default &#39;siouxehv.nl&#39;)\n</span>
 <span class="sd">        :return: None\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">machine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__iis_domain</span>
+        <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__iis_domain</span>
 
         <span class="n">secrets</span> <span class="o">=</span> <span class="n">netrc</span><span class="o">.</span><span class="n">netrc</span><span class="p">()</span>
-        <span class="n">username</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">authenticators</span><span class="p">(</span><span class="n">machine</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">authenticators</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid host provided!&quot;</span><span class="p">)</span>
+
+        <span class="n">username</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">ret</span>
         <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__iis_domain</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">username</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
@@ -2033,28 +2041,31 @@ table {
             
   <div class="item">
     <div class="name def" id="SiouxParser.SiouxParser.authenticate">
-    <p>def <span class="ident">authenticate</span>(</p><p>self, machine=None)</p>
+    <p>def <span class="ident">authenticate</span>(</p><p>self, host=None)</p>
     </div>
     
 
     
   
     <div class="desc"><p>Authenticate using netrc file.</p>
-<p>:param machine: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default 'siouxehv.nl')</p>
+<p>:param host: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default 'siouxehv.nl')</p>
 <p>:return: None</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.SiouxParser.authenticate', this);">Show source &equiv;</a></p>
   <div id="source-SiouxParser.SiouxParser.authenticate" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Authenticate using netrc file.\n</span>
-<span class="sd">    :param machine: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default &#39;siouxehv.nl&#39;)\n</span>
+<span class="sd">    :param host: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default &#39;siouxehv.nl&#39;)\n</span>
 <span class="sd">    :return: None\n</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">machine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__iis_domain</span>
+    <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__iis_domain</span>
     <span class="n">secrets</span> <span class="o">=</span> <span class="n">netrc</span><span class="o">.</span><span class="n">netrc</span><span class="p">()</span>
-    <span class="n">username</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">authenticators</span><span class="p">(</span><span class="n">machine</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">authenticators</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid host provided!&quot;</span><span class="p">)</span>
+    <span class="n">username</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">ret</span>
     <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__iis_domain</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">username</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">auth</span> <span class="o">=</span> <span class="n">HttpNtlmAuth</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>

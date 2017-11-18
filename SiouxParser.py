@@ -266,18 +266,22 @@ class SiouxParser:
 
         return False
 
-    def authenticate(self, machine=None):
+    def authenticate(self, host=None):
         """
         Authenticate using netrc file.\n
 
-        :param machine: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default 'siouxehv.nl')\n
+        :param host: Machine entry in ~/.netrc file for Sioux BE intranet. (string) (default 'siouxehv.nl')\n
         :return: None\n
         """
-        if machine is None:
-            machine = self.__iis_domain
+        if host is None:
+            host = self.__iis_domain
 
         secrets = netrc.netrc()
-        username, _, password = secrets.authenticators(machine)
+        ret = secrets.authenticators(host)
+        if ret is None:
+            raise RuntimeError("Invalid host provided!")
+
+        username, _, password = ret
         username = self.__iis_domain + '\\' + username
 
         self.__session = requests.Session()
