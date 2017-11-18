@@ -15,12 +15,13 @@ class SiouxParser:
     __RAW_EVENTS = None
     __RAW_BDAYS = None
 
-    # Filter keys for event date
+    # Filter keys for events/bdays
     __ONE_DAY = 'one_day'
     __MUL_DAY = 'multiple_days'
     __TODAY = 'today'
     __FUTURE = 'future'
     __PAST = 'past'
+    __AGE = 'age'
 
     # Config file
     __CONFIG_FILE = 'config.ini'
@@ -53,6 +54,8 @@ class SiouxParser:
         self.__evCatPowwow = self.__get_config('EVENTS', 'POWWOW')
         self.__evCatTraining = self.__get_config('EVENTS', 'TRAINING')
         self.__evCatExpGroup = self.__get_config('EVENTS', 'EXP_GROUP')
+
+        self.__curr_date = datetime.now().date()
 
         locale.setlocale(locale.LC_TIME, "nl_BE")
 
@@ -139,7 +142,7 @@ class SiouxParser:
             req = self.__session.get(self.__birtdayUrl)
             parseable_text = req.text
         else:
-            parseable_text = test_content
+            parseable_text = self.__get_config('TEST', 'TEST_STR_BDAY_TODAY')
 
         soup = BeautifulSoup(parseable_text, "html.parser")
 
@@ -166,15 +169,15 @@ class SiouxParser:
             role = entry['class'][0]
 
             if dict_bday['RelativeTime'][-1] == self.__TODAY:
-                dict_bday['Date'] = datetime.now().date()
+                dict_bday['Date'].append(self.__curr_date)
             else:
                 # Some browsers retrieve (Nov 16), (May 16), ... instead of (16 Nov), (Mei 16), ...
                 regex_date = re.findall("\(.+\)", entry.text)[0].replace('(', '').replace(')', '')
                 if regex_date[0].isdigit():  # If we have a date that starts with a digit, we have a dutch date
-                    date = datetime.strptime(regex_date, "%d %b").date().replace(year=datetime.now().date().year)
+                    date = datetime.strptime(regex_date, "%d %b").date().replace(year=self.__curr_date.year)
                 else:
                     locale.setlocale(locale.LC_TIME, 'en_US')
-                    date = datetime.strptime(regex_date, "%b %d").date().replace(year=datetime.now().date().year)
+                    date = datetime.strptime(regex_date, "%b %d").date().replace(year=self.__curr_date.year)
                     locale.setlocale(locale.LC_TIME, 'nl_BE')
                 dict_bday['Date'].append(date)
 
@@ -183,6 +186,34 @@ class SiouxParser:
             dict_bday['Role'].append(role)
 
         self.__RAW_BDAYS = dict_bday
+
+    def __get_persons_age(self, url, test_content=None, curr_date=None):
+        """
+        Get age of a person given the persons url.\n
+
+        :return: Age\n
+        """
+        if self.__session is None:
+            raise RuntimeError('Not authenticated yet. Call authenticate method before getting birthdays!')
+
+        if test_content is None:
+            req = self.__session.get(url)
+            parseable_text = req.text
+        else:
+            parseable_text = test_content
+
+        if curr_date is None:
+            curr_date = self.__curr_date
+
+        soup = BeautifulSoup(parseable_text, "html.parser")
+
+        tab = soup.find(self.__get_config('P_D', 'TAB'), {self.__get_config('P_D', 'TAB_ARG'): self.__get_config('P_D', 'TAB_VALUE')})
+        rec = tab.find(self.__get_config('P_D', 'REC_ELEMENT'), {self.__get_config('P_D', 'REC_ARG'): self.__get_config('P_D', 'REC_VALUE')})
+        date = rec.find(self.__get_config('P_D', 'DATE_ELEMENT'), {self.__get_config('P_D', 'DATE_ARG'): self.__get_config('P_D', 'DATE_VALUE')}).text
+        dt = datetime.strptime(date, "%d-%m-%Y").date()
+
+        # noinspection PyTypeChecker
+        return curr_date.year - dt.year - ((curr_date.month, curr_date.day) < (dt.month, dt.day))
 
     def __validate_day(self, days, filter_days):
         """
@@ -195,7 +226,7 @@ class SiouxParser:
         if days is None:
             raise RuntimeError('Event has no date!')
 
-        current_date = datetime.now().date()
+        current_date = self.__curr_date
 
         if len(days) == 1:
             multiple_days = False
@@ -307,13 +338,14 @@ class SiouxParser:
         """
         return {self.__ONE_DAY: one_day, self.__MUL_DAY: mul_day, self.__TODAY: today, self.__FUTURE: future, self.__PAST: past}
 
-    def filter_bday(self, today, future, past):
+    def filter_bday(self, today, future, past, age):
         """
         Creates a filter to be used in the parse_birthdays method.\n
 
         :param today:  Include today's birthdays. (boolean)\n
         :param future: Include future birthdays. (boolean)\n
         :param past:   Include birthdays that already happened. (boolean)\n
+        :param age:    Include new age\n
         :return: Bday filters based on date requirements. (List)\n
         """
         filter_bday = []
@@ -324,6 +356,8 @@ class SiouxParser:
             filter_bday.append(self.__FUTURE)
         if past:
             filter_bday.append(self.__PAST)
+        if age:
+            filter_bday.append(self.__AGE)
 
         return filter_bday
 
@@ -361,7 +395,7 @@ class SiouxParser:
         Parse and filter all birthdays into a list of dictionaries.\n
 
         :param filter_bday: Filter created in method filter_bday.\n
-        :return: Birthdays (List of dictionaries with keys: name, date, role, url.)\n
+        :return: Birthdays (List of dictionaries with keys: name, date, role, url, [new age].)\n
         """
         results = []
 
@@ -372,7 +406,15 @@ class SiouxParser:
 
         for name, date, role, rel_time, url in zip(bdays['Name'], bdays['Date'], bdays['Role'], bdays['RelativeTime'], bdays['Url']):
             if rel_time in filter_bday:
-                result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role, 'url': url}
+                if self.__AGE in filter_bday:
+                    temp_age = self.__get_persons_age(url)
+                    if role == self.__get_config('PARSE_BDAY', 'ROLE_COLLEGUE'):
+                        age = (temp_age if not rel_time == self.__FUTURE else temp_age + 1) # age should reflect how old someone will become this year.
+                    else:
+                        age = -1
+                    result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role, 'url': url, 'age': age}
+                else:
+                    result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role, 'url': url}
                 results.append(result)
         return results
 
@@ -383,9 +425,10 @@ if __name__ == "__main__":
     parser.authenticate()
 
     # Set filters
+    get_age = True
     filter_category_dict = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
     filter_date_dict = parser.filter_events_date(one_day=True, mul_day=True, today=True, future=True, past=False)
-    filter_bday_dict = parser.filter_bday(today=True, future=True, past=False)
+    filter_bday_dict = parser.filter_bday(today=False, future=True, past=False, age=get_age)
 
     # Retrieve events
     events_dict = parser.parse_events(filter_category_dict, filter_date_dict)
@@ -407,4 +450,6 @@ if __name__ == "__main__":
         print 'Date: \t%s' % birthday['date']
         print 'Role: \t%s' % birthday['role']
         print 'Url: \t%s' % birthday['url']
+        if get_age:
+            print 'Age: \t%s' % birthday['age']
         print ''
