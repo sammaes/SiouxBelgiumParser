@@ -42,9 +42,9 @@ class SiouxParser:
             raise RuntimeError("Could not locate config file '%s'." % config_file)
 
         self.__iis_domain = self.__get_config('URLS', 'IIS_DOMAIN')
-        self.__baseUrl = self.__get_config('URLS', 'BASE')
-        self.__eventsOverviewUrl = self.__baseUrl + self.__get_config('URLS', 'EVENTS_OVERVIEW_EXT')
-        self.__birtdayUrl = self.__baseUrl + self.__get_config('URLS', 'BDAY_EXT')
+        self.__baseIntraUrl = self.__get_config('URLS', 'BASE_INTRA')
+        self.__eventsOverviewUrl = self.__baseIntraUrl + self.__get_config('URLS', 'EVENTS_OVERVIEW_EXT')
+        self.__birtdayUrl = self.__baseIntraUrl + self.__get_config('URLS', 'BDAY_EXT')
         self.__session = None
 
         # Event categories:
@@ -105,7 +105,7 @@ class SiouxParser:
         else:
             parseable_text = test_content
 
-        events_base_url = self.__get_config('URLS', 'EVENTS_EXT')
+        events_base_url = self.__get_config('URLS', 'BASE')
         parse_element = self.__get_config('PARSE_EV', 'ELEMENT')
         parse_arg = self.__get_config('PARSE_EV', 'ARG')
         soup = BeautifulSoup(parseable_text, "html.parser")
@@ -146,10 +146,11 @@ class SiouxParser:
         position_today = parseable_text.find(self.__get_config('PARSE_BDAY', 'TITLE_TODAY'))
         position_future = parseable_text.find(self.__get_config('PARSE_BDAY', 'TITLE_FUTURE'))
         position_past = parseable_text.find(self.__get_config('PARSE_BDAY', 'TITLE_PAST'))
-        dict_bday = {'Name': [], 'Date': [], 'Role': [], 'RelativeTime': []}
+        dict_bday = {'Name': [], 'Date': [], 'Role': [], 'RelativeTime': [], 'Url': []}
 
         bday = soup.find_all(self.__get_config('PARSE_BDAY', 'ELEMENT'), {self.__get_config('PARSE_BDAY', 'ARG'): self.__get_config('PARSE_BDAY', 'VALUE_OVERALL')})
         bdaylist = bday[0].findAll(self.__get_config('PARSE_BDAY', 'VALUE_SEPARATE'))
+        base_url = self.__get_config('URLS', 'BASE')
 
         for entry in bdaylist:
             if position_today < parseable_text.find(entry.text) < position_future:
@@ -177,6 +178,7 @@ class SiouxParser:
                     locale.setlocale(locale.LC_TIME, 'nl_BE')
                 dict_bday['Date'].append(date)
 
+            dict_bday['Url'].append(base_url + entry.get('href'))
             dict_bday['Name'].append(name)
             dict_bday['Role'].append(role)
 
@@ -250,7 +252,7 @@ class SiouxParser:
 
         :return: Base URL. (string)\n
         """
-        return self.__baseUrl
+        return self.__baseIntraUrl
 
     def get_events_overview_url(self):
         """
@@ -359,7 +361,7 @@ class SiouxParser:
         Parse and filter all birthdays into a list of dictionaries.\n
 
         :param filter_bday: Filter created in method filter_bday.\n
-        :return: Birthdays (List of dictionaries with keys: name, date, role.)\n
+        :return: Birthdays (List of dictionaries with keys: name, date, role, url.)\n
         """
         results = []
 
@@ -368,9 +370,9 @@ class SiouxParser:
 
         bdays = self.__RAW_BDAYS
 
-        for name, date, role, rel_time in zip(bdays['Name'], bdays['Date'], bdays['Role'], bdays['RelativeTime']):
+        for name, date, role, rel_time, url in zip(bdays['Name'], bdays['Date'], bdays['Role'], bdays['RelativeTime'], bdays['Url']):
             if rel_time in filter_bday:
-                result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role}
+                result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role, 'url': url}
                 results.append(result)
         return results
 
@@ -404,4 +406,5 @@ if __name__ == "__main__":
         print 'Name: \t%s' % birthday['name']
         print 'Date: \t%s' % birthday['date']
         print 'Role: \t%s' % birthday['role']
+        print 'Url: \t%s' % birthday['url']
         print ''
