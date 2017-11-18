@@ -1,5 +1,10 @@
 # Company sensitive data
 config.ini
+test_config.ini
+
+ConfigParser
+SiouxParser
+unittest
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
