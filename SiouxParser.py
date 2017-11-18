@@ -179,7 +179,7 @@ class SiouxParser:
 
         self.__RAW_BDAYS = dict_bday
 
-    def __validate_day(self,days, filter_days):
+    def __validate_day(self, days, filter_days):
         """
         Validates given days based on the filter created in filter_events_date method.\n
 
