@@ -1041,14 +1041,6 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
-    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#SiouxParser.parse_event_date">parse_event_date</a></li>
-    <li class="mono"><a href="#SiouxParser.prettify_string">prettify_string</a></li>
-  </ul>
-
-    </li>
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
@@ -1102,30 +1094,6 @@ table {
 <span class="kn">from</span> <span class="nn">requests_ntlm</span> <span class="kn">import</span> <span class="n">HttpNtlmAuth</span>
 
 
-<span class="k">def</span> <span class="nf">prettify_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Remove tabs, newlines and leading/trailing spaces.\n</span>
-
-<span class="sd">    :param string: String containing clutter.\n</span>
-<span class="sd">    :return: Prettified string. (string)\n</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">parse_event_date</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parse a string to find all event dates.\n</span>
-
-<span class="sd">    :param string: Human readable date.\n</span>
-<span class="sd">    :return: Dates (List of datetime.date)\n</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;\d\d +[a-z]+ &#39;\d\d&quot;</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dateString</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b &#39;%y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="k">for</span> <span class="n">dateString</span> <span class="ow">in</span> <span class="n">m</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">None</span>
-
-
 <span class="k">class</span> <span class="nc">SiouxParser</span><span class="p">:</span>
     <span class="n">__RAW_EVENTS</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">__RAW_BDAYS</span> <span class="o">=</span> <span class="bp">None</span>
@@ -1171,6 +1139,30 @@ table {
 
         <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__prettify_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove tabs, newlines and leading/trailing spaces.\n</span>
+
+<span class="sd">        :param string: String containing clutter.\n</span>
+<span class="sd">        :return: Prettified string. (string)\n</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__parse_event_date</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a string to find all event dates.\n</span>
+
+<span class="sd">        :param string: Human readable date.\n</span>
+<span class="sd">        :return: Dates (List of datetime.date)\n</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;\d\d +[a-z]+ &#39;\d\d&quot;</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dateString</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b &#39;%y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="k">for</span> <span class="n">dateString</span> <span class="ow">in</span> <span class="n">m</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
     <span class="k">def</span> <span class="nf">__get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get configuration value from config file.\n</span>
@@ -1198,46 +1190,48 @@ table {
 
         <span class="n">dict_events</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Dates&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Titles&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Category&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Url&quot;</span><span class="p">:</span> <span class="p">[]}</span>
 
-        <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">parse_event_date</span><span class="p">(</span><span class="n">datee</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">datee</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_DATE&#39;</span><span class="p">)})]</span>
+        <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__parse_event_date</span><span class="p">(</span><span class="n">datee</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">datee</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_DATE&#39;</span><span class="p">)})]</span>
         <span class="n">titles</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_TITLE&#39;</span><span class="p">)})</span>
         <span class="n">location</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_LOCATION&#39;</span><span class="p">)})</span>
-        <span class="n">category</span> <span class="o">=</span> <span class="p">[</span><span class="n">prettify_string</span><span class="p">(</span><span class="n">catt</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">catt</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_CATEGORY&#39;</span><span class="p">)})]</span>
+        <span class="n">category</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__prettify_string</span><span class="p">(</span><span class="n">catt</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">catt</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_CATEGORY&#39;</span><span class="p">)})]</span>
 
         <span class="k">for</span> <span class="n">dateEv</span><span class="p">,</span> <span class="n">titleEv</span><span class="p">,</span> <span class="n">locEv</span><span class="p">,</span> <span class="n">catEv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="n">titles</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
             <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Dates&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dateEv</span><span class="p">)</span>
-            <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Titles&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prettify_string</span><span class="p">(</span><span class="n">titleEv</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
-            <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Location&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prettify_string</span><span class="p">(</span><span class="n">locEv</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+            <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Titles&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__prettify_string</span><span class="p">(</span><span class="n">titleEv</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+            <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Location&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__prettify_string</span><span class="p">(</span><span class="n">locEv</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
             <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Category&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">catEv</span><span class="p">)</span>
             <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">events_base_url</span> <span class="o">+</span> <span class="n">titleEv</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="bp">True</span><span class="p">)[</span><span class="s1">&#39;href&#39;</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__RAW_EVENTS</span> <span class="o">=</span> <span class="n">dict_events</span>
 
-    <span class="k">def</span> <span class="nf">__get_recent_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__get_recent_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_content</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all recent birthdays from the bday page and store it in the member __RAW_BDAYS.\n</span>
 
 <span class="sd">        :return: None\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not authenticated yet. Call authenticate method before getting events!&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not authenticated yet. Call authenticate method before getting birthdays!&#39;</span><span class="p">)</span>
 
         <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__birtdayUrl</span><span class="p">)</span>
-        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
 
-        <span class="n">position_today</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_TODAY&#39;</span><span class="p">))</span>
-        <span class="n">position_future</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_FUTURE&#39;</span><span class="p">))</span>
-        <span class="n">position_past</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_PAST&#39;</span><span class="p">))</span>
+        <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">test_content</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">parseable_text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+
+        <span class="n">position_today</span> <span class="o">=</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_TODAY&#39;</span><span class="p">))</span>
+        <span class="n">position_future</span> <span class="o">=</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_FUTURE&#39;</span><span class="p">))</span>
+        <span class="n">position_past</span> <span class="o">=</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_PAST&#39;</span><span class="p">))</span>
         <span class="n">dict_bday</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Date&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Role&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;RelativeTime&#39;</span><span class="p">:</span> <span class="p">[]}</span>
 
         <span class="n">bday</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ELEMENT&#39;</span><span class="p">),</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ARG&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_OVERALL&#39;</span><span class="p">)})</span>
         <span class="n">bdaylist</span> <span class="o">=</span> <span class="n">bday</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_SEPARATE&#39;</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">bdaylist</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">position_today</span> <span class="o">&lt;</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">position_future</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">position_today</span> <span class="o">&lt;</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">position_future</span><span class="p">:</span>
                 <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__TODAY</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">position_future</span> <span class="o">&lt;</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">position_past</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">position_future</span> <span class="o">&lt;</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">position_past</span><span class="p">:</span>
                 <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__FUTURE</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">position_past</span> <span class="o">&lt;</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">):</span>
+            <span class="k">elif</span> <span class="n">position_past</span> <span class="o">&lt;</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">):</span>
                 <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__PAST</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39; Parsing bday day failed.&#39;</span><span class="p">)</span>
@@ -1245,22 +1239,25 @@ table {
             <span class="n">name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;(.+) \(&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">role</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
-            <span class="c1"># Some browsers retrieve (Nov 16), (May 16), ... instead of (16 Nov), (Mei 16), ...</span>
-            <span class="n">regex_date</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;\(.+\)&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">regex_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>  <span class="c1"># If we have a date that starts with a digit, we have a dutch date</span>
-                <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">regex_date</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__TODAY</span><span class="p">:</span>
+                <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s1">&#39;en_US&#39;</span><span class="p">)</span>
-                <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">regex_date</span><span class="p">,</span> <span class="s2">&quot;%b </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
-                <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s1">&#39;nl_BE&#39;</span><span class="p">)</span>
+                <span class="c1"># Some browsers retrieve (Nov 16), (May 16), ... instead of (16 Nov), (Mei 16), ...</span>
+                <span class="n">regex_date</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;\(.+\)&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">regex_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>  <span class="c1"># If we have a date that starts with a digit, we have a dutch date</span>
+                    <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">regex_date</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s1">&#39;en_US&#39;</span><span class="p">)</span>
+                    <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">regex_date</span><span class="p">,</span> <span class="s2">&quot;%b </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+                    <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s1">&#39;nl_BE&#39;</span><span class="p">)</span>
+                <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
 
             <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
             <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;Role&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__RAW_BDAYS</span> <span class="o">=</span> <span class="n">dict_bday</span>
 
-    <span class="k">def</span> <span class="nf">__validate_day</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">days</span><span class="p">,</span> <span class="n">filter_days</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__validate_day</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">days</span><span class="p">,</span> <span class="n">filter_days</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Validates given days based on the filter created in filter_events_date method.\n</span>
 
@@ -1491,71 +1488,6 @@ table {
 
   <section id="section-items">
 
-    <h2 class="section-title" id="header-functions">Functions</h2>
-      
-  <div class="item">
-    <div class="name def" id="SiouxParser.parse_event_date">
-    <p>def <span class="ident">parse_event_date</span>(</p><p>string)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Parse a string to find all event dates.</p>
-<p>:param string: Human readable date.</p>
-<p>:return: Dates (List of datetime.date)</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.parse_event_date', this);">Show source &equiv;</a></p>
-  <div id="source-SiouxParser.parse_event_date" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_event_date</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parse a string to find all event dates.\n</span>
-
-<span class="sd">    :param string: Human readable date.\n</span>
-<span class="sd">    :return: Dates (List of datetime.date)\n</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;\d\d +[a-z]+ &#39;\d\d&quot;</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dateString</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b &#39;%y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="k">for</span> <span class="n">dateString</span> <span class="ow">in</span> <span class="n">m</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">None</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="SiouxParser.prettify_string">
-    <p>def <span class="ident">prettify_string</span>(</p><p>string)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Remove tabs, newlines and leading/trailing spaces.</p>
-<p>:param string: String containing clutter.</p>
-<p>:return: Prettified string. (string)</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.prettify_string', this);">Show source &equiv;</a></p>
-  <div id="source-SiouxParser.prettify_string" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">prettify_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Remove tabs, newlines and leading/trailing spaces.\n</span>
-
-<span class="sd">    :param string: String containing clutter.\n</span>
-<span class="sd">    :return: Prettified string. (string)\n</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
 
     <h2 class="section-title" id="header-classes">Classes</h2>
       
@@ -1611,6 +1543,30 @@ table {
 
         <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__prettify_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove tabs, newlines and leading/trailing spaces.\n</span>
+
+<span class="sd">        :param string: String containing clutter.\n</span>
+<span class="sd">        :return: Prettified string. (string)\n</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__parse_event_date</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a string to find all event dates.\n</span>
+
+<span class="sd">        :param string: Human readable date.\n</span>
+<span class="sd">        :return: Dates (List of datetime.date)\n</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;\d\d +[a-z]+ &#39;\d\d&quot;</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dateString</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b &#39;%y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="k">for</span> <span class="n">dateString</span> <span class="ow">in</span> <span class="n">m</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
     <span class="k">def</span> <span class="nf">__get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get configuration value from config file.\n</span>
@@ -1638,46 +1594,48 @@ table {
 
         <span class="n">dict_events</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Dates&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Titles&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Category&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Url&quot;</span><span class="p">:</span> <span class="p">[]}</span>
 
-        <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">parse_event_date</span><span class="p">(</span><span class="n">datee</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">datee</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_DATE&#39;</span><span class="p">)})]</span>
+        <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__parse_event_date</span><span class="p">(</span><span class="n">datee</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">datee</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_DATE&#39;</span><span class="p">)})]</span>
         <span class="n">titles</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_TITLE&#39;</span><span class="p">)})</span>
         <span class="n">location</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_LOCATION&#39;</span><span class="p">)})</span>
-        <span class="n">category</span> <span class="o">=</span> <span class="p">[</span><span class="n">prettify_string</span><span class="p">(</span><span class="n">catt</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">catt</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_CATEGORY&#39;</span><span class="p">)})]</span>
+        <span class="n">category</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__prettify_string</span><span class="p">(</span><span class="n">catt</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">catt</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">parse_element</span><span class="p">,</span> <span class="p">{</span><span class="n">parse_arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_CATEGORY&#39;</span><span class="p">)})]</span>
 
         <span class="k">for</span> <span class="n">dateEv</span><span class="p">,</span> <span class="n">titleEv</span><span class="p">,</span> <span class="n">locEv</span><span class="p">,</span> <span class="n">catEv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="n">titles</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
             <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Dates&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dateEv</span><span class="p">)</span>
-            <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Titles&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prettify_string</span><span class="p">(</span><span class="n">titleEv</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
-            <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Location&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prettify_string</span><span class="p">(</span><span class="n">locEv</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+            <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Titles&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__prettify_string</span><span class="p">(</span><span class="n">titleEv</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+            <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Location&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__prettify_string</span><span class="p">(</span><span class="n">locEv</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
             <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Category&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">catEv</span><span class="p">)</span>
             <span class="n">dict_events</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">events_base_url</span> <span class="o">+</span> <span class="n">titleEv</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="bp">True</span><span class="p">)[</span><span class="s1">&#39;href&#39;</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__RAW_EVENTS</span> <span class="o">=</span> <span class="n">dict_events</span>
 
-    <span class="k">def</span> <span class="nf">__get_recent_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__get_recent_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_content</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all recent birthdays from the bday page and store it in the member __RAW_BDAYS.\n</span>
 
 <span class="sd">        :return: None\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not authenticated yet. Call authenticate method before getting events!&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not authenticated yet. Call authenticate method before getting birthdays!&#39;</span><span class="p">)</span>
 
         <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__birtdayUrl</span><span class="p">)</span>
-        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
 
-        <span class="n">position_today</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_TODAY&#39;</span><span class="p">))</span>
-        <span class="n">position_future</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_FUTURE&#39;</span><span class="p">))</span>
-        <span class="n">position_past</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_PAST&#39;</span><span class="p">))</span>
+        <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">test_content</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">parseable_text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+
+        <span class="n">position_today</span> <span class="o">=</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_TODAY&#39;</span><span class="p">))</span>
+        <span class="n">position_future</span> <span class="o">=</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_FUTURE&#39;</span><span class="p">))</span>
+        <span class="n">position_past</span> <span class="o">=</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_PAST&#39;</span><span class="p">))</span>
         <span class="n">dict_bday</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Date&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Role&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;RelativeTime&#39;</span><span class="p">:</span> <span class="p">[]}</span>
 
         <span class="n">bday</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ELEMENT&#39;</span><span class="p">),</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ARG&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_OVERALL&#39;</span><span class="p">)})</span>
         <span class="n">bdaylist</span> <span class="o">=</span> <span class="n">bday</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_SEPARATE&#39;</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">bdaylist</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">position_today</span> <span class="o">&lt;</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">position_future</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">position_today</span> <span class="o">&lt;</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">position_future</span><span class="p">:</span>
                 <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__TODAY</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">position_future</span> <span class="o">&lt;</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">position_past</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">position_future</span> <span class="o">&lt;</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">position_past</span><span class="p">:</span>
                 <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__FUTURE</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">position_past</span> <span class="o">&lt;</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">):</span>
+            <span class="k">elif</span> <span class="n">position_past</span> <span class="o">&lt;</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">):</span>
                 <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__PAST</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39; Parsing bday day failed.&#39;</span><span class="p">)</span>
@@ -1685,22 +1643,25 @@ table {
             <span class="n">name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;(.+) \(&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">role</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
-            <span class="c1"># Some browsers retrieve (Nov 16), (May 16), ... instead of (16 Nov), (Mei 16), ...</span>
-            <span class="n">regex_date</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;\(.+\)&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">regex_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>  <span class="c1"># If we have a date that starts with a digit, we have a dutch date</span>
-                <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">regex_date</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__TODAY</span><span class="p">:</span>
+                <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s1">&#39;en_US&#39;</span><span class="p">)</span>
-                <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">regex_date</span><span class="p">,</span> <span class="s2">&quot;%b </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
-                <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s1">&#39;nl_BE&#39;</span><span class="p">)</span>
+                <span class="c1"># Some browsers retrieve (Nov 16), (May 16), ... instead of (16 Nov), (Mei 16), ...</span>
+                <span class="n">regex_date</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;\(.+\)&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">text</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">regex_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>  <span class="c1"># If we have a date that starts with a digit, we have a dutch date</span>
+                    <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">regex_date</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s1">&#39;en_US&#39;</span><span class="p">)</span>
+                    <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">regex_date</span><span class="p">,</span> <span class="s2">&quot;%b </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+                    <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s1">&#39;nl_BE&#39;</span><span class="p">)</span>
+                <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
 
             <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
             <span class="n">dict_bday</span><span class="p">[</span><span class="s1">&#39;Role&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__RAW_BDAYS</span> <span class="o">=</span> <span class="n">dict_bday</span>
 
-    <span class="k">def</span> <span class="nf">__validate_day</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">days</span><span class="p">,</span> <span class="n">filter_days</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__validate_day</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">days</span><span class="p">,</span> <span class="n">filter_days</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Validates given days based on the filter created in filter_events_date method.\n</span>
 

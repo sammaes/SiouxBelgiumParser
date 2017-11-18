@@ -11,30 +11,6 @@ from datetime import datetime
 from requests_ntlm import HttpNtlmAuth
 
 
-def prettify_string(string):
-    """
-    Remove tabs, newlines and leading/trailing spaces.\n
-
-    :param string: String containing clutter.\n
-    :return: Prettified string. (string)\n
-    """
-    return string.strip().replace('\n', '').replace('\t', '')
-
-
-def parse_event_date(string):
-    """
-    Parse a string to find all event dates.\n
-
-    :param string: Human readable date.\n
-    :return: Dates (List of datetime.date)\n
-    """
-    m = re.findall("\d\d +[a-z]+ '\d\d", string)
-    if m:
-        return [datetime.strptime(dateString, "%d %b '%y").date() for dateString in m]
-    else:
-        return None
-
-
 class SiouxParser:
     __RAW_EVENTS = None
     __RAW_BDAYS = None
@@ -80,6 +56,30 @@ class SiouxParser:
 
         locale.setlocale(locale.LC_TIME, "nl_BE")
 
+    @staticmethod
+    def __prettify_string(string):
+        """
+        Remove tabs, newlines and leading/trailing spaces.\n
+
+        :param string: String containing clutter.\n
+        :return: Prettified string. (string)\n
+        """
+        return string.strip().replace('\n', '').replace('\t', '')
+
+    @staticmethod
+    def __parse_event_date(string):
+        """
+        Parse a string to find all event dates.\n
+
+        :param string: Human readable date.\n
+        :return: Dates (List of datetime.date)\n
+        """
+        m = re.findall("\d\d +[a-z]+ '\d\d", string)
+        if m:
+            return [datetime.strptime(dateString, "%d %b '%y").date() for dateString in m]
+        else:
+            return None
+
     def __get_config(self, key, value):
         """
         Get configuration value from config file.\n
@@ -107,15 +107,15 @@ class SiouxParser:
 
         dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": [], "Url": []}
 
-        dates = [parse_event_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_DATE')})]
+        dates = [self.__parse_event_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_DATE')})]
         titles = soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_TITLE')})
         location = soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_LOCATION')})
-        category = [prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_CATEGORY')})]
+        category = [self.__prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_CATEGORY')})]
 
         for dateEv, titleEv, locEv, catEv in zip(dates, titles, location, category):
             dict_events['Dates'].append(dateEv)
-            dict_events['Titles'].append(prettify_string(titleEv.text))
-            dict_events['Location'].append(prettify_string(locEv.text))
+            dict_events['Titles'].append(self.__prettify_string(titleEv.text))
+            dict_events['Location'].append(self.__prettify_string(locEv.text))
             dict_events['Category'].append(catEv)
             dict_events['Url'].append(events_base_url + titleEv.find('a', href=True)['href'])
 
