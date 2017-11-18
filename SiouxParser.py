@@ -61,6 +61,10 @@ class SiouxParser:
     def _curr_date(self):
         return datetime.now().date()
 
+    @property
+    def _curr_year(self):
+        return datetime.now().date().year
+
     @staticmethod
     def _prettify_string(string):
         """
@@ -110,7 +114,7 @@ class SiouxParser:
         """
         return self._conf.get(key, value)
 
-    def _get_events(self, test_content=None):
+    def _get_events(self):
         """
         Get all events from the events page and store it in member _RAW_EVENTS.\n
 
@@ -123,7 +127,7 @@ class SiouxParser:
         parse_arg = self._get_config('PARSE_EV', 'ARG')
         soup = BeautifulSoup(parseable_text, "html.parser")
 
-        dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": [], "Url": []}
+        dict_events = {"Date": [], "Title": [], "Loc": [], "Cat": [], "Url": []}
 
         dates = [self._parse_event_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self._get_config('PARSE_EV', 'VALUE_DATE')})]
         titles = soup.find_all(parse_element, {parse_arg: self._get_config('PARSE_EV', 'VALUE_TITLE')})
@@ -131,10 +135,10 @@ class SiouxParser:
         category = [self._prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self._get_config('PARSE_EV', 'VALUE_CATEGORY')})]
 
         for dateEv, titleEv, locEv, catEv in zip(dates, titles, location, category):
-            dict_events['Dates'].append(dateEv)
-            dict_events['Titles'].append(self._prettify_string(titleEv.text))
-            dict_events['Location'].append(self._prettify_string(locEv.text))
-            dict_events['Category'].append(catEv)
+            dict_events['Date'].append(dateEv)
+            dict_events['Title'].append(self._prettify_string(titleEv.text))
+            dict_events['Loc'].append(self._prettify_string(locEv.text))
+            dict_events['Cat'].append(catEv)
             dict_events['Url'].append(events_base_url + titleEv.find('a', href=True)['href'])
 
         self._RAW_EVENTS = dict_events
@@ -157,7 +161,8 @@ class SiouxParser:
         bday = soup.find_all(self._get_config('PARSE_BDAY', 'ELEMENT'), {self._get_config('PARSE_BDAY', 'ARG'): self._get_config('PARSE_BDAY', 'VALUE_OVERALL')})
         bdaylist = bday[0].findAll(self._get_config('PARSE_BDAY', 'VALUE_SEPARATE'))
         base_url = self._get_config('URLS', 'BASE')
-        curr_year = self._curr_date.year
+        curr_date = self._curr_date
+        curr_year = self._curr_year
 
         for entry in bdaylist:
             if position_today < parseable_text.find(entry.text) < position_future:
@@ -173,7 +178,7 @@ class SiouxParser:
             role = entry['class'][0]
 
             if dict_bday['RelativeTime'][-1] == self._TODAY:
-                dict_bday['Date'].append(self._curr_date)
+                dict_bday['Date'].append(curr_date)
             else:
                 # Some browsers retrieve (Nov 16), (May 16), ... instead of (16 Nov), (Mei 16), ...
                 regex_date = re.findall("\(.+\)", entry.text)[0].replace('(', '').replace(')', '')
@@ -188,8 +193,6 @@ class SiouxParser:
             dict_bday['Url'].append(base_url + entry.get('href'))
             dict_bday['Name'].append(name)
             dict_bday['Role'].append(role)
-            import ipdb
-            ipdb.set_trace()
 
         self._RAW_BDAYS = dict_bday
 
@@ -379,16 +382,16 @@ class SiouxParser:
 
         events = self._RAW_EVENTS
 
-        for date, title, loc, cat, url in zip(events['Dates'], events['Titles'], events['Location'], events['Category'], events['Url']):
-            if not (filter_title in title and filter_cat[cat] and self._validate_day(date, filter_date)):
+        for i in range(len(events['Date'])):
+            if not (filter_title in events['Title'][i] and filter_cat[events['Cat'][i]] and self._validate_day(events['Date'][i], filter_date)):
                 continue
-            if len(date) == 2 and date[0] != date[1]:
-                time = date[0].strftime('%d/%m/%Y') + " - " + date[1].strftime('%d/%m/%Y')
-            elif len(date) == 1 or date[0] == date[1]:
-                time = date[0].strftime('%d/%m/%Y')
+            if len(events['Date'][i]) == 2 and events['Date'][i][0] != events['Date'][i][1]:
+                time = events['Date'][i][0].strftime('%d/%m/%Y') + " - " + events['Date'][i][1].strftime('%d/%m/%Y')
+            elif len(events['Date'][i]) == 1 or events['Date'][i][0] == events['Date'][i][1]:
+                time = events['Date'][i][0].strftime('%d/%m/%Y')
             else:
                 time = None
-            result = {'date': time, 'title': title, 'location': loc, 'category': cat, 'url': url}
+            result = {'date': time, 'title': events['Title'][i], 'location': events['Cat'][i], 'category': events['Cat'][i], 'url': events['Url'][i]}
             results.append(result)
         return results
 
@@ -406,19 +409,17 @@ class SiouxParser:
 
         bdays = self._RAW_BDAYS
 
-        for name, date, role, rel_time, url in zip(bdays['Name'], bdays['Date'], bdays['Role'], bdays['RelativeTime'], bdays['Url']):
-            import ipdb
-            ipdb.set_trace()
-            if rel_time in filter_bday:
+        for i in range(len(bdays['Date'])):
+            if bdays['RelativeTime'][i] in filter_bday:
                 if self._AGE in filter_bday:
-                    temp_age = self._get_persons_age(url)
-                    if role == self._get_config('PARSE_BDAY', 'ROLE_COLLEGUE'):
-                        age = (temp_age if not rel_time == self._FUTURE else temp_age + 1) # age should reflect how old someone will become this year.
+                    temp_age = self._get_persons_age(bdays['Url'][i])
+                    if bdays['Role'][i] == self._get_config('PARSE_BDAY', 'ROLE_COLLEGUE'):
+                        age = (temp_age if not bdays['RelativeTime'][i] == self._FUTURE else temp_age + 1)  # age should reflect how old someone will become this year.
                     else:
                         age = -1
-                    result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role, 'url': url, 'age': age}
+                    result = {'name': bdays['Name'][i], 'date': bdays['Date'][i].strftime('%d/%m/%Y'), 'role': bdays['Role'][i], 'url': bdays['Url'][i], 'age': age}
                 else:
-                    result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role, 'url': url}
+                    result = {'name': bdays['Name'][i], 'date': bdays['Date'][i].strftime('%d/%m/%Y'), 'role': bdays['Role'][i], 'url': bdays['Url'][i]}
                 results.append(result)
         return results
 
