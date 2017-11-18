@@ -121,32 +121,34 @@ class SiouxParser:
 
         self.__RAW_EVENTS = dict_events
 
-    def __get_recent_birthdays(self):
+    def __get_recent_birthdays(self, test_content=None):
         """
         Get all recent birthdays from the bday page and store it in the member __RAW_BDAYS.\n
 
         :return: None\n
         """
         if self.__session is None:
-            raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
+            raise RuntimeError('Not authenticated yet. Call authenticate method before getting birthdays!')
 
         req = self.__session.get(self.__birtdayUrl)
-        soup = BeautifulSoup(req.text, "html.parser")
 
-        position_today = req.text.find(self.__get_config('PARSE_BDAY', 'TITLE_TODAY'))
-        position_future = req.text.find(self.__get_config('PARSE_BDAY', 'TITLE_FUTURE'))
-        position_past = req.text.find(self.__get_config('PARSE_BDAY', 'TITLE_PAST'))
+        parseable_text = req.text if test_content is None else test_content
+        soup = BeautifulSoup(parseable_text, "html.parser")
+
+        position_today = parseable_text.find(self.__get_config('PARSE_BDAY', 'TITLE_TODAY'))
+        position_future = parseable_text.find(self.__get_config('PARSE_BDAY', 'TITLE_FUTURE'))
+        position_past = parseable_text.find(self.__get_config('PARSE_BDAY', 'TITLE_PAST'))
         dict_bday = {'Name': [], 'Date': [], 'Role': [], 'RelativeTime': []}
 
         bday = soup.find_all(self.__get_config('PARSE_BDAY', 'ELEMENT'), {self.__get_config('PARSE_BDAY', 'ARG'): self.__get_config('PARSE_BDAY', 'VALUE_OVERALL')})
         bdaylist = bday[0].findAll(self.__get_config('PARSE_BDAY', 'VALUE_SEPARATE'))
 
         for entry in bdaylist:
-            if position_today < req.text.find(entry.text) < position_future:
+            if position_today < parseable_text.find(entry.text) < position_future:
                 dict_bday['RelativeTime'].append(self.__TODAY)
-            elif position_future < req.text.find(entry.text) < position_past:
+            elif position_future < parseable_text.find(entry.text) < position_past:
                 dict_bday['RelativeTime'].append(self.__FUTURE)
-            elif position_past < req.text.find(entry.text):
+            elif position_past < parseable_text.find(entry.text):
                 dict_bday['RelativeTime'].append(self.__PAST)
             else:
                 raise RuntimeError(' Parsing bday day failed.')
