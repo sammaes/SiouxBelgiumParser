@@ -104,6 +104,8 @@ class SiouxParser:
 
         if test_content is None:
             req = self.__session.get(self.__eventsOverviewUrl)
+            if not req.ok:
+                raise RuntimeError("Bad response!")
             parseable_text = req.text
         else:
             parseable_text = test_content
@@ -140,6 +142,8 @@ class SiouxParser:
 
         if test_content is None:
             req = self.__session.get(self.__birtdayUrl)
+            if not req.ok:
+                raise RuntimeError("Bad response!")
             parseable_text = req.text
         else:
             parseable_text = self.__get_config('TEST', 'TEST_STR_BDAY_TODAY')
@@ -198,6 +202,8 @@ class SiouxParser:
 
         if test_content is None:
             req = self.__session.get(url)
+            if not req.ok:
+                raise RuntimeError("Bad response!")
             parseable_text = req.text
         else:
             parseable_text = test_content

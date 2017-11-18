@@ -1187,6 +1187,8 @@ table {
 
         <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__eventsOverviewUrl</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">req</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Bad response!&quot;</span><span class="p">)</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">test_content</span>
@@ -1223,6 +1225,8 @@ table {
 
         <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__birtdayUrl</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">req</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Bad response!&quot;</span><span class="p">)</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;TEST&#39;</span><span class="p">,</span> <span class="s1">&#39;TEST_STR_BDAY_TODAY&#39;</span><span class="p">)</span>
@@ -1281,6 +1285,8 @@ table {
 
         <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">req</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Bad response!&quot;</span><span class="p">)</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">test_content</span>
@@ -1647,6 +1653,8 @@ table {
 
         <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__eventsOverviewUrl</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">req</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Bad response!&quot;</span><span class="p">)</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">test_content</span>
@@ -1683,6 +1691,8 @@ table {
 
         <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__birtdayUrl</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">req</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Bad response!&quot;</span><span class="p">)</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;TEST&#39;</span><span class="p">,</span> <span class="s1">&#39;TEST_STR_BDAY_TODAY&#39;</span><span class="p">)</span>
@@ -1741,6 +1751,8 @@ table {
 
         <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">req</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Bad response!&quot;</span><span class="p">)</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">test_content</span>
