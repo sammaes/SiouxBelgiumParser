@@ -1173,7 +1173,7 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_content</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all events from the events page and store it in member __RAW_EVENTS.\n</span>
 
@@ -1182,11 +1182,16 @@ table {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not authenticated yet. Call authenticate method before getting events!&#39;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__eventsOverviewUrl</span><span class="p">)</span>
+            <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">test_content</span>
+
         <span class="n">events_base_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;URLS&#39;</span><span class="p">,</span> <span class="s1">&#39;EVENTS_EXT&#39;</span><span class="p">)</span>
         <span class="n">parse_element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;ELEMENT&#39;</span><span class="p">)</span>
         <span class="n">parse_arg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;ARG&#39;</span><span class="p">)</span>
-        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__eventsOverviewUrl</span><span class="p">)</span>
-        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">parseable_text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
 
         <span class="n">dict_events</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Dates&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Titles&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Category&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Url&quot;</span><span class="p">:</span> <span class="p">[]}</span>
 
@@ -1213,9 +1218,12 @@ table {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not authenticated yet. Call authenticate method before getting birthdays!&#39;</span><span class="p">)</span>
 
-        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__birtdayUrl</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__birtdayUrl</span><span class="p">)</span>
+            <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">test_content</span>
 
-        <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">test_content</span>
         <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">parseable_text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
 
         <span class="n">position_today</span> <span class="o">=</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_TODAY&#39;</span><span class="p">))</span>
@@ -1577,7 +1585,7 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_content</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all events from the events page and store it in member __RAW_EVENTS.\n</span>
 
@@ -1586,11 +1594,16 @@ table {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not authenticated yet. Call authenticate method before getting events!&#39;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__eventsOverviewUrl</span><span class="p">)</span>
+            <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">test_content</span>
+
         <span class="n">events_base_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;URLS&#39;</span><span class="p">,</span> <span class="s1">&#39;EVENTS_EXT&#39;</span><span class="p">)</span>
         <span class="n">parse_element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;ELEMENT&#39;</span><span class="p">)</span>
         <span class="n">parse_arg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_EV&#39;</span><span class="p">,</span> <span class="s1">&#39;ARG&#39;</span><span class="p">)</span>
-        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__eventsOverviewUrl</span><span class="p">)</span>
-        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">parseable_text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
 
         <span class="n">dict_events</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Dates&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Titles&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Category&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Url&quot;</span><span class="p">:</span> <span class="p">[]}</span>
 
@@ -1617,9 +1630,12 @@ table {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not authenticated yet. Call authenticate method before getting birthdays!&#39;</span><span class="p">)</span>
 
-        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__birtdayUrl</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__birtdayUrl</span><span class="p">)</span>
+            <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">test_content</span>
 
-        <span class="n">parseable_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">test_content</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">test_content</span>
         <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">parseable_text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
 
         <span class="n">position_today</span> <span class="o">=</span> <span class="n">parseable_text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;TITLE_TODAY&#39;</span><span class="p">))</span>

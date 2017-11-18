@@ -90,7 +90,7 @@ class SiouxParser:
         """
         return self.__conf.get(key, value)
 
-    def __get_events(self):
+    def __get_events(self, test_content=None):
         """
         Get all events from the events page and store it in member __RAW_EVENTS.\n
 
@@ -99,11 +99,16 @@ class SiouxParser:
         if self.__session is None:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
 
+        if test_content is None:
+            req = self.__session.get(self.__eventsOverviewUrl)
+            parseable_text = req.text
+        else:
+            parseable_text = test_content
+
         events_base_url = self.__get_config('URLS', 'EVENTS_EXT')
         parse_element = self.__get_config('PARSE_EV', 'ELEMENT')
         parse_arg = self.__get_config('PARSE_EV', 'ARG')
-        req = self.__session.get(self.__eventsOverviewUrl)
-        soup = BeautifulSoup(req.text, "html.parser")
+        soup = BeautifulSoup(parseable_text, "html.parser")
 
         dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": [], "Url": []}
 
@@ -130,9 +135,12 @@ class SiouxParser:
         if self.__session is None:
             raise RuntimeError('Not authenticated yet. Call authenticate method before getting birthdays!')
 
-        req = self.__session.get(self.__birtdayUrl)
+        if test_content is None:
+            req = self.__session.get(self.__birtdayUrl)
+            parseable_text = req.text
+        else:
+            parseable_text = test_content
 
-        parseable_text = req.text if test_content is None else test_content
         soup = BeautifulSoup(parseable_text, "html.parser")
 
         position_today = parseable_text.find(self.__get_config('PARSE_BDAY', 'TITLE_TODAY'))
