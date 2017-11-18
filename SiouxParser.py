@@ -65,6 +65,14 @@ class SiouxParser:
     def _curr_year(self):
         return datetime.now().date().year
 
+    @property
+    def _curr_month(self):
+        return datetime.now().date().month
+
+    @property
+    def _curr_day(self):
+        return datetime.now().date().day
+
     @staticmethod
     def _prettify_string(string):
         """
@@ -161,8 +169,8 @@ class SiouxParser:
         bday = soup.find_all(self._get_config('PARSE_BDAY', 'ELEMENT'), {self._get_config('PARSE_BDAY', 'ARG'): self._get_config('PARSE_BDAY', 'VALUE_OVERALL')})
         bdaylist = bday[0].findAll(self._get_config('PARSE_BDAY', 'VALUE_SEPARATE'))
         base_url = self._get_config('URLS', 'BASE')
-        curr_date = self._curr_date
         curr_year = self._curr_year
+        curr_date = datetime(curr_year, self._curr_month, self._curr_day).date()
 
         for entry in bdaylist:
             if position_today < parseable_text.find(entry.text) < position_future:
@@ -417,9 +425,11 @@ class SiouxParser:
                         age = (temp_age if not bdays['RelativeTime'][i] == self._FUTURE else temp_age + 1)  # age should reflect how old someone will become this year.
                     else:
                         age = -1
-                    result = {'name': bdays['Name'][i], 'date': bdays['Date'][i].strftime('%d/%m/%Y'), 'role': bdays['Role'][i], 'url': bdays['Url'][i], 'age': age}
+                    result = {'name': bdays['Name'][i], 'date': bdays['Date'][i].strftime('%d/%m/%Y'),
+                              'role': bdays['Role'][i], 'url': bdays['Url'][i], 'age': age}
                 else:
-                    result = {'name': bdays['Name'][i], 'date': bdays['Date'][i].strftime('%d/%m/%Y'), 'role': bdays['Role'][i], 'url': bdays['Url'][i]}
+                    result = {'name': bdays['Name'][i], 'date': bdays['Date'][i].strftime('%d/%m/%Y'),
+                              'role': bdays['Role'][i], 'url': bdays['Url'][i]}
                 results.append(result)
         return results
 
