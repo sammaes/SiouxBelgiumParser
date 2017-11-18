@@ -12,19 +12,19 @@ from requests_ntlm import HttpNtlmAuth
 
 
 class SiouxParser:
-    __RAW_EVENTS = None
-    __RAW_BDAYS = None
+    _RAW_EVENTS = None
+    _RAW_BDAYS = None
 
     # Filter keys for events/bdays
-    __ONE_DAY = 'one_day'
-    __MUL_DAY = 'multiple_days'
-    __TODAY = 'today'
-    __FUTURE = 'future'
-    __PAST = 'past'
-    __AGE = 'age'
+    _ONE_DAY = 'one_day'
+    _MUL_DAY = 'multiple_days'
+    _TODAY = 'today'
+    _FUTURE = 'future'
+    _PAST = 'past'
+    _AGE = 'age'
 
     # Config file
-    __CONFIG_FILE = 'config.ini'
+    _CONFIG_FILE = 'config.ini'
 
     def __init__(self, path_config_file=None):
         """
@@ -32,35 +32,37 @@ class SiouxParser:
 
         :param path_config_file: Path to the configuration file. (default: current directory)\n
         """
-        self.__conf = ConfigParser.ConfigParser()
+        self._conf = ConfigParser.ConfigParser()
 
         path = path_config_file if path_config_file is not None else os.getcwd()
-        config_file = os.path.join(path, self.__CONFIG_FILE)
+        config_file = os.path.join(path, self._CONFIG_FILE)
 
         if os.path.isfile(config_file):
-            self.__conf.read(config_file)
+            self._conf.read(config_file)
         else:
             raise RuntimeError("Could not locate config file '%s'." % config_file)
 
-        self.__iis_domain = self.__get_config('URLS', 'IIS_DOMAIN')
-        self.__baseIntraUrl = self.__get_config('URLS', 'BASE_INTRA')
-        self.__eventsOverviewUrl = self.__baseIntraUrl + self.__get_config('URLS', 'EVENTS_OVERVIEW_EXT')
-        self.__birtdayUrl = self.__baseIntraUrl + self.__get_config('URLS', 'BDAY_EXT')
-        self.__session = None
+        self._iis_domain = self._get_config('URLS', 'IIS_DOMAIN')
+        self._baseIntraUrl = self._get_config('URLS', 'BASE_INTRA')
+        self._eventsOverviewUrl = self._baseIntraUrl + self._get_config('URLS', 'EVENTS_OVERVIEW_EXT')
+        self._birtdayUrl = self._baseIntraUrl + self._get_config('URLS', 'BDAY_EXT')
+        self._session = None
 
         # Event categories:
-        self.__evCatSocialPartner = self.__get_config('EVENTS', 'SOCIAL_PARTNER')
-        self.__evCatSocialColleague = self.__get_config('EVENTS', 'SOCIAL_COLLEAGUE')
-        self.__evCatPowwow = self.__get_config('EVENTS', 'POWWOW')
-        self.__evCatTraining = self.__get_config('EVENTS', 'TRAINING')
-        self.__evCatExpGroup = self.__get_config('EVENTS', 'EXP_GROUP')
-
-        self.__curr_date = datetime.now().date()
+        self._evCatSocialPartner = self._get_config('EVENTS', 'SOCIAL_PARTNER')
+        self._evCatSocialColleague = self._get_config('EVENTS', 'SOCIAL_COLLEAGUE')
+        self._evCatPowwow = self._get_config('EVENTS', 'POWWOW')
+        self._evCatTraining = self._get_config('EVENTS', 'TRAINING')
+        self._evCatExpGroup = self._get_config('EVENTS', 'EXP_GROUP')
 
         locale.setlocale(locale.LC_TIME, "nl_BE")
 
+    @property
+    def _curr_date(self):
+        return datetime.now().date()
+
     @staticmethod
-    def __prettify_string(string):
+    def _prettify_string(string):
         """
         Remove tabs, newlines and leading/trailing spaces.\n
 
@@ -70,7 +72,7 @@ class SiouxParser:
         return string.strip().replace('\n', '').replace('\t', '')
 
     @staticmethod
-    def __parse_event_date(string):
+    def _parse_event_date(string):
         """
         Parse a string to find all event dates.\n
 
@@ -83,7 +85,22 @@ class SiouxParser:
         else:
             return None
 
-    def __get_config(self, key, value):
+    def _fetch_data(self, url):
+        """
+        Get html data from a certain URL.\n
+
+        :param url: url to get html from.\n
+        :return: html stream (string)\n
+        """
+        if self._session is None:
+            raise RuntimeError('Not authenticated yet. Call authenticate method before getting birthdays!')
+
+        req = self._session.get(url)
+        if not req.ok:
+            raise RuntimeError("Bad response!")
+        return req.text
+
+    def _get_config(self, key, value):
         """
         Get configuration value from config file.\n
 
@@ -91,137 +108,112 @@ class SiouxParser:
         :param value: Value associated with said key. (string)\n
         :return: Configuration value. (string)\n
         """
-        return self.__conf.get(key, value)
+        return self._conf.get(key, value)
 
-    def __get_events(self, test_content=None):
+    def _get_events(self, test_content=None):
         """
-        Get all events from the events page and store it in member __RAW_EVENTS.\n
+        Get all events from the events page and store it in member _RAW_EVENTS.\n
 
         :return: None\n
         """
-        if self.__session is None:
-            raise RuntimeError('Not authenticated yet. Call authenticate method before getting events!')
+        parseable_text = self._fetch_data(self._eventsOverviewUrl)
 
-        if test_content is None:
-            req = self.__session.get(self.__eventsOverviewUrl)
-            if not req.ok:
-                raise RuntimeError("Bad response!")
-            parseable_text = req.text
-        else:
-            parseable_text = test_content
-
-        events_base_url = self.__get_config('URLS', 'BASE')
-        parse_element = self.__get_config('PARSE_EV', 'ELEMENT')
-        parse_arg = self.__get_config('PARSE_EV', 'ARG')
+        events_base_url = self._get_config('URLS', 'BASE')
+        parse_element = self._get_config('PARSE_EV', 'ELEMENT')
+        parse_arg = self._get_config('PARSE_EV', 'ARG')
         soup = BeautifulSoup(parseable_text, "html.parser")
 
         dict_events = {"Dates": [], "Titles": [], "Location": [], "Category": [], "Url": []}
 
-        dates = [self.__parse_event_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_DATE')})]
-        titles = soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_TITLE')})
-        location = soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_LOCATION')})
-        category = [self.__prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self.__get_config('PARSE_EV', 'VALUE_CATEGORY')})]
+        dates = [self._parse_event_date(datee.text) for datee in soup.find_all(parse_element, {parse_arg: self._get_config('PARSE_EV', 'VALUE_DATE')})]
+        titles = soup.find_all(parse_element, {parse_arg: self._get_config('PARSE_EV', 'VALUE_TITLE')})
+        location = soup.find_all(parse_element, {parse_arg: self._get_config('PARSE_EV', 'VALUE_LOCATION')})
+        category = [self._prettify_string(catt.text) for catt in soup.find_all(parse_element, {parse_arg: self._get_config('PARSE_EV', 'VALUE_CATEGORY')})]
 
         for dateEv, titleEv, locEv, catEv in zip(dates, titles, location, category):
             dict_events['Dates'].append(dateEv)
-            dict_events['Titles'].append(self.__prettify_string(titleEv.text))
-            dict_events['Location'].append(self.__prettify_string(locEv.text))
+            dict_events['Titles'].append(self._prettify_string(titleEv.text))
+            dict_events['Location'].append(self._prettify_string(locEv.text))
             dict_events['Category'].append(catEv)
             dict_events['Url'].append(events_base_url + titleEv.find('a', href=True)['href'])
 
-        self.__RAW_EVENTS = dict_events
+        self._RAW_EVENTS = dict_events
 
-    def __get_recent_birthdays(self, test_content=None):
+    def _get_recent_birthdays(self):
         """
-        Get all recent birthdays from the bday page and store it in the member __RAW_BDAYS.\n
+        Get all recent birthdays from the bday page and store it in the member _RAW_BDAYS.\n
 
         :return: None\n
         """
-        if self.__session is None:
-            raise RuntimeError('Not authenticated yet. Call authenticate method before getting birthdays!')
-
-        if test_content is None:
-            req = self.__session.get(self.__birtdayUrl)
-            if not req.ok:
-                raise RuntimeError("Bad response!")
-            parseable_text = req.text
-        else:
-            parseable_text = self.__get_config('TEST', 'TEST_STR_BDAY_TODAY')
+        parseable_text = self._fetch_data(self._birtdayUrl)
 
         soup = BeautifulSoup(parseable_text, "html.parser")
 
-        position_today = parseable_text.find(self.__get_config('PARSE_BDAY', 'TITLE_TODAY'))
-        position_future = parseable_text.find(self.__get_config('PARSE_BDAY', 'TITLE_FUTURE'))
-        position_past = parseable_text.find(self.__get_config('PARSE_BDAY', 'TITLE_PAST'))
+        position_today = parseable_text.find(self._get_config('PARSE_BDAY', 'TITLE_TODAY'))
+        position_future = parseable_text.find(self._get_config('PARSE_BDAY', 'TITLE_FUTURE'))
+        position_past = parseable_text.find(self._get_config('PARSE_BDAY', 'TITLE_PAST'))
         dict_bday = {'Name': [], 'Date': [], 'Role': [], 'RelativeTime': [], 'Url': []}
 
-        bday = soup.find_all(self.__get_config('PARSE_BDAY', 'ELEMENT'), {self.__get_config('PARSE_BDAY', 'ARG'): self.__get_config('PARSE_BDAY', 'VALUE_OVERALL')})
-        bdaylist = bday[0].findAll(self.__get_config('PARSE_BDAY', 'VALUE_SEPARATE'))
-        base_url = self.__get_config('URLS', 'BASE')
+        bday = soup.find_all(self._get_config('PARSE_BDAY', 'ELEMENT'), {self._get_config('PARSE_BDAY', 'ARG'): self._get_config('PARSE_BDAY', 'VALUE_OVERALL')})
+        bdaylist = bday[0].findAll(self._get_config('PARSE_BDAY', 'VALUE_SEPARATE'))
+        base_url = self._get_config('URLS', 'BASE')
+        curr_year = self._curr_date.year
 
         for entry in bdaylist:
             if position_today < parseable_text.find(entry.text) < position_future:
-                dict_bday['RelativeTime'].append(self.__TODAY)
+                dict_bday['RelativeTime'].append(self._TODAY)
             elif position_future < parseable_text.find(entry.text) < position_past:
-                dict_bday['RelativeTime'].append(self.__FUTURE)
+                dict_bday['RelativeTime'].append(self._FUTURE)
             elif position_past < parseable_text.find(entry.text):
-                dict_bday['RelativeTime'].append(self.__PAST)
+                dict_bday['RelativeTime'].append(self._PAST)
             else:
                 raise RuntimeError(' Parsing bday day failed.')
 
             name = re.findall("(.+) \(", entry.text)[0]
             role = entry['class'][0]
 
-            if dict_bday['RelativeTime'][-1] == self.__TODAY:
-                dict_bday['Date'].append(self.__curr_date)
+            if dict_bday['RelativeTime'][-1] == self._TODAY:
+                dict_bday['Date'].append(self._curr_date)
             else:
                 # Some browsers retrieve (Nov 16), (May 16), ... instead of (16 Nov), (Mei 16), ...
                 regex_date = re.findall("\(.+\)", entry.text)[0].replace('(', '').replace(')', '')
                 if regex_date[0].isdigit():  # If we have a date that starts with a digit, we have a dutch date
-                    date = datetime.strptime(regex_date, "%d %b").date().replace(year=self.__curr_date.year)
+                    date = datetime.strptime(regex_date, "%d %b").date().replace(year=curr_year)
                 else:
                     locale.setlocale(locale.LC_TIME, 'en_US')
-                    date = datetime.strptime(regex_date, "%b %d").date().replace(year=self.__curr_date.year)
+                    date = datetime.strptime(regex_date, "%b %d").date().replace(year=curr_year)
                     locale.setlocale(locale.LC_TIME, 'nl_BE')
                 dict_bday['Date'].append(date)
 
             dict_bday['Url'].append(base_url + entry.get('href'))
             dict_bday['Name'].append(name)
             dict_bday['Role'].append(role)
+            import ipdb
+            ipdb.set_trace()
 
-        self.__RAW_BDAYS = dict_bday
+        self._RAW_BDAYS = dict_bday
 
-    def __get_persons_age(self, url, test_content=None, curr_date=None):
+    def _get_persons_age(self, url):
         """
         Get age of a person given the persons url.\n
 
         :return: Age\n
         """
-        if self.__session is None:
-            raise RuntimeError('Not authenticated yet. Call authenticate method before getting birthdays!')
+        parseable_text = self._fetch_data(url)
 
-        if test_content is None:
-            req = self.__session.get(url)
-            if not req.ok:
-                raise RuntimeError("Bad response!")
-            parseable_text = req.text
-        else:
-            parseable_text = test_content
-
-        if curr_date is None:
-            curr_date = self.__curr_date
+        curr_date = self._curr_date
 
         soup = BeautifulSoup(parseable_text, "html.parser")
 
-        tab = soup.find(self.__get_config('P_D', 'TAB'), {self.__get_config('P_D', 'TAB_ARG'): self.__get_config('P_D', 'TAB_VALUE')})
-        rec = tab.find(self.__get_config('P_D', 'REC_ELEMENT'), {self.__get_config('P_D', 'REC_ARG'): self.__get_config('P_D', 'REC_VALUE')})
-        date = rec.find(self.__get_config('P_D', 'DATE_ELEMENT'), {self.__get_config('P_D', 'DATE_ARG'): self.__get_config('P_D', 'DATE_VALUE')}).text
+        tab = soup.find(self._get_config('P_D', 'TAB'), {self._get_config('P_D', 'TAB_ARG'): self._get_config('P_D', 'TAB_VALUE')})
+        rec = tab.find(self._get_config('P_D', 'REC_ELEMENT'), {self._get_config('P_D', 'REC_ARG'): self._get_config('P_D', 'REC_VALUE')})
+        date = rec.find(self._get_config('P_D', 'DATE_ELEMENT'), {self._get_config('P_D', 'DATE_ARG'): self._get_config('P_D', 'DATE_VALUE')}).text
         dt = datetime.strptime(date, "%d-%m-%Y").date()
 
         # noinspection PyTypeChecker
         return curr_date.year - dt.year - ((curr_date.month, curr_date.day) < (dt.month, dt.day))
 
-    def __validate_day(self, days, filter_days):
+    def _validate_day(self, days, filter_days):
         """
         Validates given days based on the filter created in filter_events_date method.\n
 
@@ -232,7 +224,7 @@ class SiouxParser:
         if days is None:
             raise RuntimeError('Event has no date!')
 
-        current_date = self.__curr_date
+        current_date = self._curr_date
 
         if len(days) == 1:
             multiple_days = False
@@ -240,28 +232,28 @@ class SiouxParser:
             multiple_days = len(days) > 1 and (days[0] != days[1])
         one_day = not multiple_days
 
-        if (not filter_days[self.__ONE_DAY] and one_day) or (not filter_days[self.__MUL_DAY] and multiple_days):
+        if (not filter_days[self._ONE_DAY] and one_day) or (not filter_days[self._MUL_DAY] and multiple_days):
             return False
 
-        if not filter_days[self.__PAST] and days[-1] < current_date:
+        if not filter_days[self._PAST] and days[-1] < current_date:
             return False
 
-        if not filter_days[self.__FUTURE] and days[-1] > current_date:
+        if not filter_days[self._FUTURE] and days[-1] > current_date:
             return False
 
-        if not filter_days[self.__TODAY] and days[0] <= current_date <= days[-1]:
+        if not filter_days[self._TODAY] and days[0] <= current_date <= days[-1]:
             return False
 
-        if (filter_days[self.__ONE_DAY] and one_day) or (filter_days[self.__MUL_DAY] and multiple_days):
+        if (filter_days[self._ONE_DAY] and one_day) or (filter_days[self._MUL_DAY] and multiple_days):
             return True
 
-        if filter_days[self.__TODAY] and days[0] <= current_date <= days[-1]:
+        if filter_days[self._TODAY] and days[0] <= current_date <= days[-1]:
             return True
 
-        if filter_days[self.__FUTURE] and days[-1] > current_date:
+        if filter_days[self._FUTURE] and days[-1] > current_date:
             return True
 
-        if filter_days[self.__PAST] and days[-1] < current_date:
+        if filter_days[self._PAST] and days[-1] < current_date:
             return True
 
         return False
@@ -274,7 +266,7 @@ class SiouxParser:
         :return: None\n
         """
         if host is None:
-            host = self.__iis_domain
+            host = self._iis_domain
 
         secrets = netrc.netrc()
         ret = secrets.authenticators(host)
@@ -282,10 +274,10 @@ class SiouxParser:
             raise RuntimeError("Invalid host provided!")
 
         username, _, password = ret
-        username = self.__iis_domain + '\\' + username
+        username = self._iis_domain + '\\' + username
 
-        self.__session = requests.Session()
-        self.__session.auth = HttpNtlmAuth(username, password)
+        self._session = requests.Session()
+        self._session.auth = HttpNtlmAuth(username, password)
 
     def get_base_url(self):
         """
@@ -293,7 +285,7 @@ class SiouxParser:
 
         :return: Base URL. (string)\n
         """
-        return self.__baseIntraUrl
+        return self._baseIntraUrl
 
     def get_events_overview_url(self):
         """
@@ -301,7 +293,7 @@ class SiouxParser:
 
         :return: Events overview URL. (string)\n
         """
-        return self.__eventsOverviewUrl
+        return self._eventsOverviewUrl
 
     def get_next_event(self, filter_cat, filter_date, filter_title=""):
         """
@@ -326,12 +318,12 @@ class SiouxParser:
         :param exp_group:        Include expertise group meetings. (boolean)\n
         :return: Events filter bases on categories. (Dictionary with event categories as a key and their respective boolean argument as value.)\n
         """
-        d = dict.fromkeys([self.__evCatSocialPartner, self.__evCatSocialColleague, self.__evCatPowwow, self.__evCatTraining, self.__evCatExpGroup])
-        d[self.__evCatSocialPartner] = social_partner
-        d[self.__evCatSocialColleague] = social_colleague
-        d[self.__evCatPowwow] = powwow
-        d[self.__evCatTraining] = training
-        d[self.__evCatExpGroup] = exp_group
+        d = dict.fromkeys([self._evCatSocialPartner, self._evCatSocialColleague, self._evCatPowwow, self._evCatTraining, self._evCatExpGroup])
+        d[self._evCatSocialPartner] = social_partner
+        d[self._evCatSocialColleague] = social_colleague
+        d[self._evCatPowwow] = powwow
+        d[self._evCatTraining] = training
+        d[self._evCatExpGroup] = exp_group
 
         return d
 
@@ -346,7 +338,7 @@ class SiouxParser:
         :param past:    Include events that already happened. (boolean)\n
         :return: Events filter based on date requirements. (Dictionary with date filters as a key and their respective boolean argument as value.)\n
         """
-        return {self.__ONE_DAY: one_day, self.__MUL_DAY: mul_day, self.__TODAY: today, self.__FUTURE: future, self.__PAST: past}
+        return {self._ONE_DAY: one_day, self._MUL_DAY: mul_day, self._TODAY: today, self._FUTURE: future, self._PAST: past}
 
     def filter_bday(self, today, future, past, age):
         """
@@ -361,13 +353,13 @@ class SiouxParser:
         filter_bday = []
 
         if today:
-            filter_bday.append(self.__TODAY)
+            filter_bday.append(self._TODAY)
         if future:
-            filter_bday.append(self.__FUTURE)
+            filter_bday.append(self._FUTURE)
         if past:
-            filter_bday.append(self.__PAST)
+            filter_bday.append(self._PAST)
         if age:
-            filter_bday.append(self.__AGE)
+            filter_bday.append(self._AGE)
 
         return filter_bday
 
@@ -382,13 +374,13 @@ class SiouxParser:
         """
         results = []
 
-        if self.__RAW_EVENTS is None:
-            self.__get_events()
+        if self._RAW_EVENTS is None:
+            self._get_events()
 
-        events = self.__RAW_EVENTS
+        events = self._RAW_EVENTS
 
         for date, title, loc, cat, url in zip(events['Dates'], events['Titles'], events['Location'], events['Category'], events['Url']):
-            if not (filter_title in title and filter_cat[cat] and self.__validate_day(date, filter_date)):
+            if not (filter_title in title and filter_cat[cat] and self._validate_day(date, filter_date)):
                 continue
             if len(date) == 2 and date[0] != date[1]:
                 time = date[0].strftime('%d/%m/%Y') + " - " + date[1].strftime('%d/%m/%Y')
@@ -409,17 +401,19 @@ class SiouxParser:
         """
         results = []
 
-        if self.__RAW_BDAYS is None:
-            self.__get_recent_birthdays()
+        if self._RAW_BDAYS is None:
+            self._get_recent_birthdays()
 
-        bdays = self.__RAW_BDAYS
+        bdays = self._RAW_BDAYS
 
         for name, date, role, rel_time, url in zip(bdays['Name'], bdays['Date'], bdays['Role'], bdays['RelativeTime'], bdays['Url']):
+            import ipdb
+            ipdb.set_trace()
             if rel_time in filter_bday:
-                if self.__AGE in filter_bday:
-                    temp_age = self.__get_persons_age(url)
-                    if role == self.__get_config('PARSE_BDAY', 'ROLE_COLLEGUE'):
-                        age = (temp_age if not rel_time == self.__FUTURE else temp_age + 1) # age should reflect how old someone will become this year.
+                if self._AGE in filter_bday:
+                    temp_age = self._get_persons_age(url)
+                    if role == self._get_config('PARSE_BDAY', 'ROLE_COLLEGUE'):
+                        age = (temp_age if not rel_time == self._FUTURE else temp_age + 1) # age should reflect how old someone will become this year.
                     else:
                         age = -1
                     result = {'name': name, 'date': date.strftime('%d/%m/%Y'), 'role': role, 'url': url, 'age': age}
