@@ -1107,7 +1107,6 @@ table {
     <span class="n">_AGE</span> <span class="o">=</span> <span class="s1">&#39;age&#39;</span>
 
     <span class="c1"># Config file</span>
-    <span class="n">_CONFIG_FILE</span> <span class="o">=</span> <span class="s1">&#39;config.ini&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1115,10 +1114,13 @@ table {
 
 <span class="sd">        :param path_config_file: Path to the configuration file. (default: current directory)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_FILE</span> <span class="o">=</span> <span class="s1">&#39;config.ini&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
 
+        <span class="c1"># print &quot;CONFIG_FILE=&quot; + str(self.CONFIG_FILE)</span>
+
         <span class="n">path</span> <span class="o">=</span> <span class="n">path_config_file</span> <span class="k">if</span> <span class="n">path_config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-        <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CONFIG_FILE</span><span class="p">)</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_FILE</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
@@ -1137,6 +1139,7 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;POWWOW&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;TRAINING&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;EXP_GROUP&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_evPresentation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;PRESENTATION&#39;</span><span class="p">)</span>
 
         <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
 
@@ -1401,7 +1404,7 @@ table {
         <span class="n">events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_events</span><span class="p">(</span><span class="n">filter_cat</span><span class="p">,</span> <span class="n">filter_date</span><span class="p">,</span> <span class="n">filter_title</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">events</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="k">else</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="nf">filter_events_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">social_partner</span><span class="p">,</span> <span class="n">social_colleague</span><span class="p">,</span> <span class="n">powwow</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="n">exp_group</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">filter_events_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">social_partner</span><span class="p">,</span> <span class="n">social_colleague</span><span class="p">,</span> <span class="n">powwow</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="n">exp_group</span><span class="p">,</span> <span class="n">presentation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a filter to be used in the parse_events method.\n</span>
 
@@ -1410,14 +1413,16 @@ table {
 <span class="sd">        :param powwow:           Include powwows. (boolean)\n</span>
 <span class="sd">        :param training:         Include trainings. (boolean)\n</span>
 <span class="sd">        :param exp_group:        Include expertise group meetings. (boolean)\n</span>
+<span class="sd">        :param presentation:     Include presentations\n</span>
 <span class="sd">        :return: Events filter bases on categories. (Dictionary with event categories as a key and their respective boolean argument as value.)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialPartner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialColleague</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span><span class="p">])</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialPartner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialColleague</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evPresentation</span><span class="p">])</span>
         <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialPartner</span><span class="p">]</span> <span class="o">=</span> <span class="n">social_partner</span>
         <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialColleague</span><span class="p">]</span> <span class="o">=</span> <span class="n">social_colleague</span>
         <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span><span class="p">]</span> <span class="o">=</span> <span class="n">powwow</span>
         <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span><span class="p">]</span> <span class="o">=</span> <span class="n">training</span>
         <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_group</span>
+        <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evPresentation</span><span class="p">]</span> <span class="o">=</span> <span class="n">presentation</span>
 
         <span class="k">return</span> <span class="n">d</span>
 
@@ -1482,7 +1487,7 @@ table {
                 <span class="n">time</span> <span class="o">=</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">/%m/%Y&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">time</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]}</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Loc&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]}</span>
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span>
 
@@ -1524,7 +1529,7 @@ table {
 
     <span class="c1"># Set filters</span>
     <span class="n">get_age</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">filter_category_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_events_category</span><span class="p">(</span><span class="n">social_partner</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">social_colleague</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">powwow</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">exp_group</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">filter_category_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_events_category</span><span class="p">(</span><span class="n">social_partner</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">social_colleague</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">powwow</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">exp_group</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">presentation</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">filter_date_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_events_date</span><span class="p">(</span><span class="n">one_day</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">mul_day</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">today</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">past</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">filter_bday_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_bday</span><span class="p">(</span><span class="n">today</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">past</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="n">get_age</span><span class="p">)</span>
 
@@ -1582,7 +1587,6 @@ table {
     <span class="n">_AGE</span> <span class="o">=</span> <span class="s1">&#39;age&#39;</span>
 
     <span class="c1"># Config file</span>
-    <span class="n">_CONFIG_FILE</span> <span class="o">=</span> <span class="s1">&#39;config.ini&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1590,10 +1594,13 @@ table {
 
 <span class="sd">        :param path_config_file: Path to the configuration file. (default: current directory)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_FILE</span> <span class="o">=</span> <span class="s1">&#39;config.ini&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
 
+        <span class="c1"># print &quot;CONFIG_FILE=&quot; + str(self.CONFIG_FILE)</span>
+
         <span class="n">path</span> <span class="o">=</span> <span class="n">path_config_file</span> <span class="k">if</span> <span class="n">path_config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-        <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CONFIG_FILE</span><span class="p">)</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_FILE</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
@@ -1612,6 +1619,7 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;POWWOW&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;TRAINING&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;EXP_GROUP&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_evPresentation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;PRESENTATION&#39;</span><span class="p">)</span>
 
         <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
 
@@ -1876,7 +1884,7 @@ table {
         <span class="n">events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_events</span><span class="p">(</span><span class="n">filter_cat</span><span class="p">,</span> <span class="n">filter_date</span><span class="p">,</span> <span class="n">filter_title</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">events</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="k">else</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="nf">filter_events_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">social_partner</span><span class="p">,</span> <span class="n">social_colleague</span><span class="p">,</span> <span class="n">powwow</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="n">exp_group</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">filter_events_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">social_partner</span><span class="p">,</span> <span class="n">social_colleague</span><span class="p">,</span> <span class="n">powwow</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="n">exp_group</span><span class="p">,</span> <span class="n">presentation</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a filter to be used in the parse_events method.\n</span>
 
@@ -1885,14 +1893,16 @@ table {
 <span class="sd">        :param powwow:           Include powwows. (boolean)\n</span>
 <span class="sd">        :param training:         Include trainings. (boolean)\n</span>
 <span class="sd">        :param exp_group:        Include expertise group meetings. (boolean)\n</span>
+<span class="sd">        :param presentation:     Include presentations\n</span>
 <span class="sd">        :return: Events filter bases on categories. (Dictionary with event categories as a key and their respective boolean argument as value.)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialPartner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialColleague</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span><span class="p">])</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialPartner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialColleague</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evPresentation</span><span class="p">])</span>
         <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialPartner</span><span class="p">]</span> <span class="o">=</span> <span class="n">social_partner</span>
         <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialColleague</span><span class="p">]</span> <span class="o">=</span> <span class="n">social_colleague</span>
         <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span><span class="p">]</span> <span class="o">=</span> <span class="n">powwow</span>
         <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span><span class="p">]</span> <span class="o">=</span> <span class="n">training</span>
         <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_group</span>
+        <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evPresentation</span><span class="p">]</span> <span class="o">=</span> <span class="n">presentation</span>
 
         <span class="k">return</span> <span class="n">d</span>
 
@@ -1957,7 +1967,7 @@ table {
                 <span class="n">time</span> <span class="o">=</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">/%m/%Y&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">time</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]}</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Loc&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]}</span>
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span>
 
@@ -2001,6 +2011,17 @@ table {
           <ul class="class_list">
           <li><a href="#SiouxParser.SiouxParser">SiouxParser</a></li>
           </ul>
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="SiouxParser.SiouxParser.CONFIG_FILE" class="name">var <span class="ident">CONFIG_FILE</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
           <h3>Methods</h3>
             
   <div class="item">
@@ -2021,9 +2042,11 @@ table {
 <span class="sd">    Parser for Sioux BE intranet.\n</span>
 <span class="sd">    :param path_config_file: Path to the configuration file. (default: current directory)\n</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_FILE</span> <span class="o">=</span> <span class="s1">&#39;config.ini&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+    <span class="c1"># print &quot;CONFIG_FILE=&quot; + str(self.CONFIG_FILE)</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">path_config_file</span> <span class="k">if</span> <span class="n">path_config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-    <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CONFIG_FILE</span><span class="p">)</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_FILE</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -2039,6 +2062,7 @@ table {
     <span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;POWWOW&#39;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;TRAINING&#39;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;EXP_GROUP&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_evPresentation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;EVENTS&#39;</span><span class="p">,</span> <span class="s1">&#39;PRESENTATION&#39;</span><span class="p">)</span>
     <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
 </pre></div>
 
@@ -2132,7 +2156,7 @@ table {
             
   <div class="item">
     <div class="name def" id="SiouxParser.SiouxParser.filter_events_category">
-    <p>def <span class="ident">filter_events_category</span>(</p><p>self, social_partner, social_colleague, powwow, training, exp_group)</p>
+    <p>def <span class="ident">filter_events_category</span>(</p><p>self, social_partner, social_colleague, powwow, training, exp_group, presentation)</p>
     </div>
     
 
@@ -2144,11 +2168,12 @@ table {
 <p>:param powwow:           Include powwows. (boolean)</p>
 <p>:param training:         Include trainings. (boolean)</p>
 <p>:param exp_group:        Include expertise group meetings. (boolean)</p>
+<p>:param presentation:     Include presentations</p>
 <p>:return: Events filter bases on categories. (Dictionary with event categories as a key and their respective boolean argument as value.)</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.SiouxParser.filter_events_category', this);">Show source &equiv;</a></p>
   <div id="source-SiouxParser.SiouxParser.filter_events_category" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">filter_events_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">social_partner</span><span class="p">,</span> <span class="n">social_colleague</span><span class="p">,</span> <span class="n">powwow</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="n">exp_group</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">filter_events_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">social_partner</span><span class="p">,</span> <span class="n">social_colleague</span><span class="p">,</span> <span class="n">powwow</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="n">exp_group</span><span class="p">,</span> <span class="n">presentation</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a filter to be used in the parse_events method.\n</span>
 <span class="sd">    :param social_partner:   Include socials with partner. (boolean)\n</span>
@@ -2156,14 +2181,16 @@ table {
 <span class="sd">    :param powwow:           Include powwows. (boolean)\n</span>
 <span class="sd">    :param training:         Include trainings. (boolean)\n</span>
 <span class="sd">    :param exp_group:        Include expertise group meetings. (boolean)\n</span>
+<span class="sd">    :param presentation:     Include presentations\n</span>
 <span class="sd">    :return: Events filter bases on categories. (Dictionary with event categories as a key and their respective boolean argument as value.)\n</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialPartner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialColleague</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span><span class="p">])</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialPartner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialColleague</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evPresentation</span><span class="p">])</span>
     <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialPartner</span><span class="p">]</span> <span class="o">=</span> <span class="n">social_partner</span>
     <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatSocialColleague</span><span class="p">]</span> <span class="o">=</span> <span class="n">social_colleague</span>
     <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatPowwow</span><span class="p">]</span> <span class="o">=</span> <span class="n">powwow</span>
     <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatTraining</span><span class="p">]</span> <span class="o">=</span> <span class="n">training</span>
     <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evCatExpGroup</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_group</span>
+    <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_evPresentation</span><span class="p">]</span> <span class="o">=</span> <span class="n">presentation</span>
     <span class="k">return</span> <span class="n">d</span>
 </pre></div>
 
@@ -2382,7 +2409,7 @@ table {
             <span class="n">time</span> <span class="o">=</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">/%m/%Y&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">time</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Loc&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]}</span>
         <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">results</span>
 </pre></div>

@@ -54,6 +54,7 @@ class SiouxParser:
         self._evCatPowwow = self._get_config('EVENTS', 'POWWOW')
         self._evCatTraining = self._get_config('EVENTS', 'TRAINING')
         self._evCatExpGroup = self._get_config('EVENTS', 'EXP_GROUP')
+        self._evPresentation = self._get_config('EVENTS', 'PRESENTATION')
 
         locale.setlocale(locale.LC_TIME, "nl_BE")
 
@@ -318,7 +319,7 @@ class SiouxParser:
         events = self.parse_events(filter_cat, filter_date, filter_title)
         return events[0] if len(events) else []
 
-    def filter_events_category(self, social_partner, social_colleague, powwow, training, exp_group):
+    def filter_events_category(self, social_partner, social_colleague, powwow, training, exp_group, presentation):
         """
         Creates a filter to be used in the parse_events method.\n
 
@@ -327,14 +328,16 @@ class SiouxParser:
         :param powwow:           Include powwows. (boolean)\n
         :param training:         Include trainings. (boolean)\n
         :param exp_group:        Include expertise group meetings. (boolean)\n
+        :param presentation:     Include presentations\n
         :return: Events filter bases on categories. (Dictionary with event categories as a key and their respective boolean argument as value.)\n
         """
-        d = dict.fromkeys([self._evCatSocialPartner, self._evCatSocialColleague, self._evCatPowwow, self._evCatTraining, self._evCatExpGroup])
+        d = dict.fromkeys([self._evCatSocialPartner, self._evCatSocialColleague, self._evCatPowwow, self._evCatTraining, self._evCatExpGroup, self._evPresentation])
         d[self._evCatSocialPartner] = social_partner
         d[self._evCatSocialColleague] = social_colleague
         d[self._evCatPowwow] = powwow
         d[self._evCatTraining] = training
         d[self._evCatExpGroup] = exp_group
+        d[self._evPresentation] = presentation
 
         return d
 
@@ -441,7 +444,7 @@ if __name__ == "__main__":
 
     # Set filters
     get_age = True
-    filter_category_dict = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
+    filter_category_dict = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True, presentation=True)
     filter_date_dict = parser.filter_events_date(one_day=True, mul_day=True, today=True, future=True, past=False)
     filter_bday_dict = parser.filter_bday(today=False, future=True, past=False, age=get_age)
 
