@@ -402,7 +402,7 @@ class SiouxParser:
                 time = events['Date'][i][0].strftime('%d/%m/%Y')
             else:
                 time = None
-            result = {'date': time, 'title': events['Title'][i], 'location': events['Cat'][i], 'category': events['Cat'][i], 'url': events['Url'][i]}
+            result = {'date': time, 'title': events['Title'][i], 'location': events['Loc'][i], 'category': events['Cat'][i], 'url': events['Url'][i]}
             results.append(result)
         return results
 
