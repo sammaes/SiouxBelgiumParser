@@ -32,9 +32,18 @@ class SiouxParser:
 
         :param path_config_file: Path to the configuration file. (default: current directory)\n
         """
-        self._conf = ConfigParser.ConfigParser()
+        self._session = None
 
-        path = path_config_file if path_config_file is not None else os.getcwd()
+        locale.setlocale(locale.LC_TIME, "nl_BE")
+
+        if path_config_file == 'Alexa':
+            return
+        elif path_config_file is not None:
+            path = path_config_file
+        else:
+            path = os.getcwd()
+
+        self._conf = ConfigParser.ConfigParser()
         config_file = os.path.join(path, self._CONFIG_FILE)
 
         if os.path.isfile(config_file):
@@ -43,9 +52,6 @@ class SiouxParser:
             raise RuntimeError("Could not locate config file '%s'." % config_file)
 
         self._load_configuration()
-        self._session = None
-
-        locale.setlocale(locale.LC_TIME, "nl_BE")
 
     def _get_config(self, key, value):
         """
