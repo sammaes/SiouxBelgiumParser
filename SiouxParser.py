@@ -80,23 +80,23 @@ class SiouxParser:
         self._evPresentation = self._get_config('EVENTS', 'PRESENTATION')
 
         # Parse events:
-        self._ev_parse_element = self._get_config('PARSE_EV', 'ELEMENT')
-        self._ev_parse_arg = self._get_config('PARSE_EV', 'ARG')
+        self._ev_parse_element = self._get_config('PARSE_EV', 'ELEMENT_EV')
+        self._ev_parse_arg = self._get_config('PARSE_EV', 'ARG_EV')
 
-        self._ev_value_date = self._get_config('PARSE_EV', 'VALUE_DATE')
-        self._ev_value_title = self._get_config('PARSE_EV', 'VALUE_TITLE')
-        self._ev_value_location = self._get_config('PARSE_EV', 'VALUE_LOCATION')
-        self._ev_value_category = self._get_config('PARSE_EV', 'VALUE_CATEGORY')
+        self._ev_value_date = self._get_config('PARSE_EV', 'VALUE_DATE_EV')
+        self._ev_value_title = self._get_config('PARSE_EV', 'VALUE_TITLE_EV')
+        self._ev_value_location = self._get_config('PARSE_EV', 'VALUE_LOCATION_EV')
+        self._ev_value_category = self._get_config('PARSE_EV', 'VALUE_CATEGORY_EV')
 
         # Parse bday:
-        self._bday_today = self._get_config('PARSE_BDAY', 'TITLE_TODAY')
-        self._bday_future = self._get_config('PARSE_BDAY', 'TITLE_FUTURE')
-        self._bday_past = self._get_config('PARSE_BDAY', 'TITLE_PAST')
+        self._bday_today = self._get_config('PARSE_BDAY', 'TITLE_TODAY_BDAY')
+        self._bday_future = self._get_config('PARSE_BDAY', 'TITLE_FUTURE_BDAY')
+        self._bday_past = self._get_config('PARSE_BDAY', 'TITLE_PAST_BDAY')
 
-        self._bday_parse_element = self._get_config('PARSE_BDAY', 'ELEMENT')
-        self._bday_parse_arg = self._get_config('PARSE_BDAY', 'ARG')
-        self._bday_parse_overall = self._get_config('PARSE_BDAY', 'VALUE_OVERALL')
-        self._bday_parse_separate = self._get_config('PARSE_BDAY', 'VALUE_SEPARATE')
+        self._bday_parse_element = self._get_config('PARSE_BDAY', 'ELEMENT_BDAY')
+        self._bday_parse_arg = self._get_config('PARSE_BDAY', 'ARG_BDAY')
+        self._bday_parse_overall = self._get_config('PARSE_BDAY', 'VALUE_OVERALL_BDAY')
+        self._bday_parse_separate = self._get_config('PARSE_BDAY', 'VALUE_SEPARATE_BDAY')
 
         self._p_d_tab = self._get_config('P_D', 'TAB'),
         self._p_d_tab_arg = self._get_config('P_D', 'TAB_ARG')
@@ -108,7 +108,7 @@ class SiouxParser:
         self._p_d_date_arg = self._get_config('P_D', 'DATE_ARG')
         self._p_d_date_value = self._get_config('P_D', 'DATE_VALUE')
 
-        self._bday_collegue = self._get_config('PARSE_BDAY', 'ROLE_COLLEGUE')
+        self._bday_collegue = self._get_config('PARSE_BDAY', 'ROLE_COLLEGUE_BDAY')
 
     @property
     def _curr_date(self):
