@@ -1,6 +1,9 @@
 # Company sensitive data
 config.ini
 test_config.ini
+sioux_birthdays.json
+sioux_events.json
+json_links
 
 ConfigParser
 SiouxParser

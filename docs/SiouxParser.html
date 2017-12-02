@@ -1670,8 +1670,8 @@ table {
 
 <span class="c1"># Main program:</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="c1"># parser = SiouxParser(config_input=ConfigInput.dynamodb, data_input=DataInput.json)</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">SiouxParser</span><span class="p">(</span><span class="n">config_input</span><span class="o">=</span><span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">,</span> <span class="n">data_input</span><span class="o">=</span><span class="n">DataInput</span><span class="o">.</span><span class="n">https</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">SiouxParser</span><span class="p">(</span><span class="n">config_input</span><span class="o">=</span><span class="n">ConfigInput</span><span class="o">.</span><span class="n">dynamodb</span><span class="p">,</span> <span class="n">data_input</span><span class="o">=</span><span class="n">DataInput</span><span class="o">.</span><span class="n">json</span><span class="p">)</span>
+    <span class="c1"># parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.https)</span>
 
     <span class="c1"># Set filters</span>
     <span class="n">get_age</span> <span class="o">=</span> <span class="bp">False</span>
