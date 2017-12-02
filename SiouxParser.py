@@ -5,6 +5,7 @@ import netrc
 import os
 import re
 import requests
+import urllib
 import ConfigParser
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -35,6 +36,10 @@ class DataInput:
     @property
     def local_json(self):
         return 'local_json'
+
+    @property
+    def remote_json(self):
+        return 'remote_json'
 
     @property
     def intranet(self):
@@ -99,12 +104,18 @@ class SiouxParser:
             raise RuntimeError('Wrong config_input argument! Use property of ConfigInput class')
 
         if data_input == DataInput.local_json:
-            self._get_events = self._get_events_json
-            self._get_recent_birthdays = self._get_recent_birthdays_json
+            self._get_events = self._get_events_local_json
+            self._get_recent_birthdays = self._get_recent_birthdays_local_json
 
             self._json_events = path_json_file[0] if path_json_file is not None else 'sioux_events.json'
             self._json_bday = path_json_file[1] if path_json_file is not None else 'sioux_birthdays.json'
-            return
+        elif data_input == DataInput.remote_json:
+            self._get_events = self._get_events_remote_json
+            self._get_recent_birthdays = self._get_recent_birthdays_remote_json
+
+            self._json_events = path_json_file[0] if path_json_file is not None else 'http://'
+            self._json_bday = path_json_file[1] if path_json_file is not None else 'http://'
+
         elif data_input == DataInput.intranet:
             self._get_events = self._get_events_intranet
             self._get_recent_birthdays = self._get_recent_birthdays_intranet
@@ -239,19 +250,24 @@ class SiouxParser:
             raise RuntimeError("Bad response!")
         return req.text
 
-    def _get_events_json(self):
+    def _fix_events_json(self, json_dump):
+        i = 0
+        for dates in json_dump['Date']:
+            j = 0
+            for date in dates:
+                json_dump['Date'][i][j] = datetime.strptime(date, "%Y-%m-%d").date()
+                j = j + 1
+            i = i + 1
+
+        self._RAW_EVENTS = json_dump
+
+    def _get_events_local_json(self):
         with open(self._json_events, 'r') as fp:
-            json_dump = json.load(fp)
+            self._fix_events_json(json.load(fp))
 
-            i = 0
-            for dates in json_dump['Date']:
-                j = 0
-                for date in dates:
-                    json_dump['Date'][i][j] = datetime.strptime(date, "%Y-%m-%d").date()
-                    j = j + 1
-                i = i + 1
-
-            self._RAW_EVENTS = json_dump
+    def _get_events_remote_json(self):
+        response = urllib.urlopen(self._json_events)
+        self._fix_events_json(json.loads(response.read()))
 
     def _get_events_intranet(self):
         """
@@ -279,16 +295,21 @@ class SiouxParser:
 
         self._RAW_EVENTS = dict_events
 
-    def _get_recent_birthdays_json(self):
+    def _fix_birthdays_json(self, json_dump):
+        i = 0
+        for date in json_dump['Date']:
+            json_dump['Date'][i] = datetime.strptime(date, "%Y-%m-%d").date()
+            i = i + 1
+
+        self._RAW_BDAYS = json_dump
+
+    def _get_recent_birthdays_local_json(self):
         with open(self._json_bday, 'r') as fp:
-            json_dump = json.load(fp)
+            self._fix_birthdays_json(json.load(fp))
 
-            i = 0
-            for date in json_dump['Date']:
-                json_dump['Date'][i] = datetime.strptime(date, "%Y-%m-%d").date()
-                i = i + 1
-
-            self._RAW_BDAYS = json_dump
+    def _get_recent_birthdays_remote_json(self):
+        response = urllib.urlopen(self._json_bday)
+        self._fix_birthdays_json(json.loads(response.read()))
 
     def _get_recent_birthdays_intranet(self):
         """

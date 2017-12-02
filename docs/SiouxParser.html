@@ -1107,6 +1107,7 @@ table {
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
 <span class="kn">import</span> <span class="nn">ConfigParser</span>
 <span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
@@ -1137,6 +1138,10 @@ table {
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">local_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;local_json&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">remote_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;remote_json&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1201,12 +1206,18 @@ table {
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong config_input argument! Use property of ConfigInput class&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">local_json</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_json</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_json</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_local_json</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_local_json</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_events.json&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_birthdays.json&#39;</span>
-            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">remote_json</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_remote_json</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_remote_json</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;http://&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;http://&#39;</span>
+
         <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">intranet</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_intranet</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_intranet</span>
@@ -1341,19 +1352,24 @@ table {
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Bad response!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
 
-    <span class="k">def</span> <span class="nf">_get_events_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_fix_events_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_dump</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">dates</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
+                <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">json_dump</span>
+
+    <span class="k">def</span> <span class="nf">_get_events_local_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="n">json_dump</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fix_events_json</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span>
 
-            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">dates</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
-                <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
-                    <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-                    <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">json_dump</span>
+    <span class="k">def</span> <span class="nf">_get_events_remote_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_events_json</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
 
     <span class="k">def</span> <span class="nf">_get_events_intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1381,16 +1397,21 @@ table {
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">dict_events</span>
 
-    <span class="k">def</span> <span class="nf">_get_recent_birthdays_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_fix_birthdays_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_dump</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
+            <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span> <span class="o">=</span> <span class="n">json_dump</span>
+
+    <span class="k">def</span> <span class="nf">_get_recent_birthdays_local_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="n">json_dump</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fix_birthdays_json</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span>
 
-            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
-                <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span> <span class="o">=</span> <span class="n">json_dump</span>
+    <span class="k">def</span> <span class="nf">_get_recent_birthdays_remote_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_birthdays_json</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
 
     <span class="k">def</span> <span class="nf">_get_recent_birthdays_intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1829,6 +1850,10 @@ table {
         <span class="k">return</span> <span class="s1">&#39;local_json&#39;</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">remote_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;remote_json&#39;</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;intranet&#39;</span>
 </pre></div>
@@ -1855,6 +1880,16 @@ table {
             </div>
             <div class="item">
             <p id="SiouxParser.DataInput.local_json" class="name">var <span class="ident">local_json</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="SiouxParser.DataInput.remote_json" class="name">var <span class="ident">remote_json</span></p>
             
 
             
@@ -1953,12 +1988,18 @@ table {
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong config_input argument! Use property of ConfigInput class&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">local_json</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_json</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_json</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_local_json</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_local_json</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_events.json&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_birthdays.json&#39;</span>
-            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">remote_json</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_remote_json</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_remote_json</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;http://&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;http://&#39;</span>
+
         <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">intranet</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_intranet</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_intranet</span>
@@ -2093,19 +2134,24 @@ table {
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Bad response!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
 
-    <span class="k">def</span> <span class="nf">_get_events_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_fix_events_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_dump</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">dates</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
+                <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">json_dump</span>
+
+    <span class="k">def</span> <span class="nf">_get_events_local_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="n">json_dump</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fix_events_json</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span>
 
-            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">dates</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
-                <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
-                    <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-                    <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">json_dump</span>
+    <span class="k">def</span> <span class="nf">_get_events_remote_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_events_json</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
 
     <span class="k">def</span> <span class="nf">_get_events_intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2133,16 +2179,21 @@ table {
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">dict_events</span>
 
-    <span class="k">def</span> <span class="nf">_get_recent_birthdays_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_fix_birthdays_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_dump</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
+            <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span> <span class="o">=</span> <span class="n">json_dump</span>
+
+    <span class="k">def</span> <span class="nf">_get_recent_birthdays_local_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="n">json_dump</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fix_birthdays_json</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span>
 
-            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
-                <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span> <span class="o">=</span> <span class="n">json_dump</span>
+    <span class="k">def</span> <span class="nf">_get_recent_birthdays_remote_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_birthdays_json</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
 
     <span class="k">def</span> <span class="nf">_get_recent_birthdays_intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2506,11 +2557,15 @@ table {
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong config_input argument! Use property of ConfigInput class&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">local_json</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_json</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_json</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_local_json</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_local_json</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_events.json&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_birthdays.json&#39;</span>
-        <span class="k">return</span>
+    <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">remote_json</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_remote_json</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_remote_json</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;http://&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;http://&#39;</span>
     <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">intranet</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_intranet</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_intranet</span>
