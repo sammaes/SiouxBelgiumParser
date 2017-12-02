@@ -1045,6 +1045,24 @@ table {
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
         <li class="mono">
+        <span class="class_name"><a href="#SiouxParser.ConfigInput">ConfigInput</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#SiouxParser.ConfigInput.__init__">__init__</a></li>
+  </ul>
+
+        </li>
+        <li class="mono">
+        <span class="class_name"><a href="#SiouxParser.DataInput">DataInput</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#SiouxParser.DataInput.__init__">__init__</a></li>
+  </ul>
+
+        </li>
+        <li class="mono">
         <span class="class_name"><a href="#SiouxParser.SiouxParser">SiouxParser</a></span>
         
           
@@ -1092,6 +1110,36 @@ table {
 <span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">requests_ntlm</span> <span class="kn">import</span> <span class="n">HttpNtlmAuth</span>
+<span class="kn">import</span> <span class="nn">boto3</span>
+<span class="kn">import</span> <span class="nn">botocore</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">boto3.dynamodb.conditions</span> <span class="kn">import</span> <span class="n">Key</span><span class="p">,</span> <span class="n">Attr</span>
+
+
+<span class="k">class</span> <span class="nc">ConfigInput</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">netrc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;netrc&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dynamodb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;dynamo_db&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">DataInput</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;json&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;HTTPS&#39;</span>
 
 
 <span class="k">class</span> <span class="nc">SiouxParser</span><span class="p">:</span>
@@ -1109,34 +1157,59 @@ table {
     <span class="c1"># Config file</span>
     <span class="n">_CONFIG_FILE</span> <span class="o">=</span> <span class="s1">&#39;config.ini&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_input</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parser for Sioux BE intranet.\n</span>
 
 <span class="sd">        :param path_config_file: Path to the configuration file. (default: current directory)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_netrc</span>
 
-        <span class="k">if</span> <span class="n">path_config_file</span> <span class="o">==</span> <span class="s1">&#39;Alexa&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">path_config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">path_config_file</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CONFIG_FILE</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not locate config file &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">config_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">dynamodb</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_dynamo_db</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;dynamodb&#39;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="s1">&#39;us-west-2&#39;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;URLS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_URLS&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;EVENTS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_EVENTS&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;PARSE_EV&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_PARSE_EV&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_PARSE_BDAY&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;P_D&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_P_D&#39;</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong config_input argument! Use property of ConfigInput class&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_json</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_json</span>
             <span class="k">return</span>
-        <span class="k">elif</span> <span class="n">path_config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">path_config_file</span>
+        <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">https</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_https</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_https</span>
+            <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong data_input argument! Use property of DataInput class&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
-        <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CONFIG_FILE</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not locate config file &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">config_file</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_config_netrc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get configuration value from config file.\n</span>
 
@@ -1145,6 +1218,17 @@ table {
 <span class="sd">        :return: Configuration value. (string)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_config_dynamo_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">KeyConditionExpression</span><span class="o">=</span><span class="n">Key</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">botocore</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;Error&#39;</span><span class="p">][</span><span class="s1">&#39;Message&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;Items&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s1">&#39;Unexpected response: key:</span><span class="si">%s</span><span class="s1"> value:</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+                <span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;Items&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_load_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -1248,7 +1332,21 @@ table {
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Bad response!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
 
-    <span class="k">def</span> <span class="nf">_get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_events_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;sioux_events.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">json_dump</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">dates</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
+                    <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">json_dump</span>
+
+    <span class="k">def</span> <span class="nf">_get_events_https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all events from the events page and store it in member _RAW_EVENTS.\n</span>
 
@@ -1274,7 +1372,18 @@ table {
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">dict_events</span>
 
-    <span class="k">def</span> <span class="nf">_get_recent_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_recent_birthdays_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;sioux_birthdays.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">json_dump</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
+                <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span> <span class="o">=</span> <span class="n">json_dump</span>
+
+    <span class="k">def</span> <span class="nf">_get_recent_birthdays_https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all recent birthdays from the bday page and store it in the member _RAW_BDAYS.\n</span>
 
@@ -1515,7 +1624,6 @@ table {
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span><span class="p">()</span>
 
         <span class="n">events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span>
-
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">])):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">filter_title</span> <span class="ow">in</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="n">filter_cat</span><span class="p">[</span><span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_day</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">filter_date</span><span class="p">)):</span>
                 <span class="k">continue</span>
@@ -1562,11 +1670,11 @@ table {
 
 <span class="c1"># Main program:</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">SiouxParser</span><span class="p">()</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">authenticate</span><span class="p">()</span>
+    <span class="c1"># parser = SiouxParser(config_input=ConfigInput.dynamodb, data_input=DataInput.json)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">SiouxParser</span><span class="p">(</span><span class="n">config_input</span><span class="o">=</span><span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">,</span> <span class="n">data_input</span><span class="o">=</span><span class="n">DataInput</span><span class="o">.</span><span class="n">https</span><span class="p">)</span>
 
     <span class="c1"># Set filters</span>
-    <span class="n">get_age</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">get_age</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="n">filter_category_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_events_category</span><span class="p">(</span><span class="n">social_partner</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">social_colleague</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">powwow</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">exp_group</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">presentation</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">filter_date_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_events_date</span><span class="p">(</span><span class="n">one_day</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">mul_day</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">today</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">past</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">filter_bday_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_bday</span><span class="p">(</span><span class="n">today</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">past</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="n">get_age</span><span class="p">)</span>
@@ -1606,6 +1714,156 @@ table {
     <h2 class="section-title" id="header-classes">Classes</h2>
       
       <div class="item">
+      <p id="SiouxParser.ConfigInput" class="name">class <span class="ident">ConfigInput</span></p>
+      
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.ConfigInput', this);">Show source &equiv;</a></p>
+  <div id="source-SiouxParser.ConfigInput" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ConfigInput</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">netrc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;netrc&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dynamodb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;dynamo_db&#39;</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#SiouxParser.ConfigInput">ConfigInput</a></li>
+          </ul>
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="SiouxParser.ConfigInput.dynamodb" class="name">var <span class="ident">dynamodb</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="SiouxParser.ConfigInput.netrc" class="name">var <span class="ident">netrc</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="SiouxParser.ConfigInput.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.ConfigInput.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-SiouxParser.ConfigInput.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="SiouxParser.DataInput" class="name">class <span class="ident">DataInput</span></p>
+      
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.DataInput', this);">Show source &equiv;</a></p>
+  <div id="source-SiouxParser.DataInput" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">DataInput</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;json&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;HTTPS&#39;</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#SiouxParser.DataInput">DataInput</a></li>
+          </ul>
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="SiouxParser.DataInput.https" class="name">var <span class="ident">https</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="SiouxParser.DataInput.json" class="name">var <span class="ident">json</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="SiouxParser.DataInput.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.DataInput.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-SiouxParser.DataInput.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      </div>
+      </div>
+      
+      <div class="item">
       <p id="SiouxParser.SiouxParser" class="name">class <span class="ident">SiouxParser</span></p>
       
   
@@ -1627,34 +1885,59 @@ table {
     <span class="c1"># Config file</span>
     <span class="n">_CONFIG_FILE</span> <span class="o">=</span> <span class="s1">&#39;config.ini&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_input</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parser for Sioux BE intranet.\n</span>
 
 <span class="sd">        :param path_config_file: Path to the configuration file. (default: current directory)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_netrc</span>
 
-        <span class="k">if</span> <span class="n">path_config_file</span> <span class="o">==</span> <span class="s1">&#39;Alexa&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">path_config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">path_config_file</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CONFIG_FILE</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not locate config file &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">config_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">dynamodb</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_dynamo_db</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;dynamodb&#39;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="s1">&#39;us-west-2&#39;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;URLS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_URLS&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;EVENTS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_EVENTS&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;PARSE_EV&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_PARSE_EV&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_PARSE_BDAY&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;P_D&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_P_D&#39;</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong config_input argument! Use property of ConfigInput class&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_json</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_json</span>
             <span class="k">return</span>
-        <span class="k">elif</span> <span class="n">path_config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">path_config_file</span>
+        <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">https</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_https</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_https</span>
+            <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong data_input argument! Use property of DataInput class&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
-        <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CONFIG_FILE</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not locate config file &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">config_file</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_config_netrc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get configuration value from config file.\n</span>
 
@@ -1663,6 +1946,17 @@ table {
 <span class="sd">        :return: Configuration value. (string)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_config_dynamo_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">KeyConditionExpression</span><span class="o">=</span><span class="n">Key</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">botocore</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;Error&#39;</span><span class="p">][</span><span class="s1">&#39;Message&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;Items&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s1">&#39;Unexpected response: key:</span><span class="si">%s</span><span class="s1"> value:</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+                <span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;Items&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_load_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -1766,7 +2060,21 @@ table {
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Bad response!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">req</span><span class="o">.</span><span class="n">text</span>
 
-    <span class="k">def</span> <span class="nf">_get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_events_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;sioux_events.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">json_dump</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">dates</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
+                    <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">json_dump</span>
+
+    <span class="k">def</span> <span class="nf">_get_events_https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all events from the events page and store it in member _RAW_EVENTS.\n</span>
 
@@ -1792,7 +2100,18 @@ table {
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">dict_events</span>
 
-    <span class="k">def</span> <span class="nf">_get_recent_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_recent_birthdays_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;sioux_birthdays.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">json_dump</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]:</span>
+                <span class="n">json_dump</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span> <span class="o">=</span> <span class="n">json_dump</span>
+
+    <span class="k">def</span> <span class="nf">_get_recent_birthdays_https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all recent birthdays from the bday page and store it in the member _RAW_BDAYS.\n</span>
 
@@ -2033,7 +2352,6 @@ table {
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span><span class="p">()</span>
 
         <span class="n">events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span>
-
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">])):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">filter_title</span> <span class="ow">in</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="n">filter_cat</span><span class="p">[</span><span class="n">events</span><span class="p">[</span><span class="s1">&#39;Cat&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_day</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">filter_date</span><span class="p">)):</span>
                 <span class="k">continue</span>
@@ -2091,7 +2409,7 @@ table {
             
   <div class="item">
     <div class="name def" id="SiouxParser.SiouxParser.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, path_config_file=None)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, config_input, data_input, path_config_file=None)</p>
     </div>
     
 
@@ -2102,26 +2420,49 @@ table {
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.SiouxParser.__init__', this);">Show source &equiv;</a></p>
   <div id="source-SiouxParser.SiouxParser.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_input</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parser for Sioux BE intranet.\n</span>
 <span class="sd">    :param path_config_file: Path to the configuration file. (default: current directory)\n</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">path_config_file</span> <span class="o">==</span> <span class="s1">&#39;Alexa&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_netrc</span>
+        <span class="k">if</span> <span class="n">path_config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">path_config_file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CONFIG_FILE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not locate config file &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">config_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">dynamodb</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_dynamo_db</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;dynamodb&#39;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="s1">&#39;us-west-2&#39;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;URLS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_URLS&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;EVENTS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_EVENTS&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;PARSE_EV&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_PARSE_EV&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_PARSE_BDAY&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;P_D&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_P_D&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong config_input argument! Use property of ConfigInput class&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_json</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_json</span>
         <span class="k">return</span>
-    <span class="k">elif</span> <span class="n">path_config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path_config_file</span>
+    <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">https</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_https</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_https</span>
+        <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
-    <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CONFIG_FILE</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not locate config file &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">config_file</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong data_input argument! Use property of DataInput class&#39;</span><span class="p">)</span>
 </pre></div>
 
   </div>
