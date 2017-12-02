@@ -33,8 +33,8 @@ class DataInput:
         pass
 
     @property
-    def json(self):
-        return 'json'
+    def local_json(self):
+        return 'local_json'
 
     @property
     def intranet(self):
@@ -98,7 +98,7 @@ class SiouxParser:
         else:
             raise RuntimeError('Wrong config_input argument! Use property of ConfigInput class')
 
-        if data_input == DataInput.json:
+        if data_input == DataInput.local_json:
             self._get_events = self._get_events_json
             self._get_recent_birthdays = self._get_recent_birthdays_json
 
@@ -592,7 +592,7 @@ class SiouxParser:
 
 # Main program:
 if __name__ == "__main__":
-    # parser = SiouxParser(config_input=ConfigInput.dynamodb, data_input=DataInput.json)
+    # parser = SiouxParser(config_input=ConfigInput.dynamodb, data_input=DataInput.local_json)
     parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.intranet)
 
     # Set filters

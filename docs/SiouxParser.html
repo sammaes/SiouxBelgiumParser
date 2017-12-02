@@ -1135,8 +1135,8 @@ table {
         <span class="k">pass</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;json&#39;</span>
+    <span class="k">def</span> <span class="nf">local_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;local_json&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1200,7 +1200,7 @@ table {
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong config_input argument! Use property of ConfigInput class&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">local_json</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_json</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_json</span>
 
@@ -1694,7 +1694,7 @@ table {
 
 <span class="c1"># Main program:</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="c1"># parser = SiouxParser(config_input=ConfigInput.dynamodb, data_input=DataInput.json)</span>
+    <span class="c1"># parser = SiouxParser(config_input=ConfigInput.dynamodb, data_input=DataInput.local_json)</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">SiouxParser</span><span class="p">(</span><span class="n">config_input</span><span class="o">=</span><span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">,</span> <span class="n">data_input</span><span class="o">=</span><span class="n">DataInput</span><span class="o">.</span><span class="n">intranet</span><span class="p">)</span>
 
     <span class="c1"># Set filters</span>
@@ -1825,8 +1825,8 @@ table {
         <span class="k">pass</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;json&#39;</span>
+    <span class="k">def</span> <span class="nf">local_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;local_json&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1854,7 +1854,7 @@ table {
 
             </div>
             <div class="item">
-            <p id="SiouxParser.DataInput.json" class="name">var <span class="ident">json</span></p>
+            <p id="SiouxParser.DataInput.local_json" class="name">var <span class="ident">local_json</span></p>
             
 
             
@@ -1952,7 +1952,7 @@ table {
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong config_input argument! Use property of ConfigInput class&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">local_json</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_json</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_json</span>
 
@@ -2505,7 +2505,7 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Wrong config_input argument! Use property of ConfigInput class&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">local_json</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_json</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_json</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_events.json&#39;</span>
