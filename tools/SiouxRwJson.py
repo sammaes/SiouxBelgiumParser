@@ -5,7 +5,8 @@ import datetime
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 
 from SiouxParser import SiouxParser
-
+from SiouxParser import ConfigInput
+from SiouxParser import DataInput
 
 class SiouxDataJson:
     def __init__(self):
@@ -59,7 +60,7 @@ if __name__ == "__main__":
         pdb.set_trace()
 
     elif str(sys.argv[1]).lower() == 'write':
-        parser = SiouxParser(config_input='netrc', data_input='HTTPS')
+        parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.https)
 
         print 'Set filters...'
         get_age = True
