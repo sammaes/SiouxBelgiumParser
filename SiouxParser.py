@@ -9,6 +9,36 @@ import ConfigParser
 from bs4 import BeautifulSoup
 from datetime import datetime
 from requests_ntlm import HttpNtlmAuth
+import boto3
+import botocore
+import json
+from boto3.dynamodb.conditions import Key, Attr
+
+
+class ConfigInput:
+    def __init__(self):
+        pass
+
+    @property
+    def netrc(self):
+        return 'netrc'
+
+    @property
+    def dynamodb(self):
+        return 'dynamo_db'
+
+
+class DataInput:
+    def __init__(self):
+        pass
+
+    @property
+    def json(self):
+        return 'json'
+
+    @property
+    def https(self):
+        return 'HTTPS'
 
 
 class SiouxParser:
@@ -26,34 +56,59 @@ class SiouxParser:
     # Config file
     _CONFIG_FILE = 'config.ini'
 
-    def __init__(self, path_config_file=None):
+    def __init__(self, config_input, data_input, path_config_file=None):
         """
         Parser for Sioux BE intranet.\n
 
         :param path_config_file: Path to the configuration file. (default: current directory)\n
         """
-        self._session = None
 
-        locale.setlocale(locale.LC_TIME, "nl_BE")
+        if config_input == ConfigInput.netrc:
+            self._get_config = self._get_config_netrc
 
-        if path_config_file == 'Alexa':
+            if path_config_file is not None:
+                path = path_config_file
+            else:
+                path = os.getcwd()
+
+            self._conf = ConfigParser.ConfigParser()
+            config_file = os.path.join(path, self._CONFIG_FILE)
+
+            if os.path.isfile(config_file):
+                self._conf.read(config_file)
+            else:
+                raise RuntimeError("Could not locate config file '%s'." % config_file)
+            self._load_configuration()
+        elif config_input == ConfigInput.dynamodb:
+            self._get_config = self._get_config_dynamo_db
+
+            self._dynamodb = boto3.resource('dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
+
+            self._tables = {
+                'URLS': self._dynamodb.Table('SIOUX_URLS'),
+                'EVENTS': self._dynamodb.Table('SIOUX_EVENTS'),
+                'PARSE_EV': self._dynamodb.Table('SIOUX_PARSE_EV'),
+                'PARSE_BDAY': self._dynamodb.Table('SIOUX_PARSE_BDAY'),
+                'P_D': self._dynamodb.Table('SIOUX_P_D')
+            }
+            self._load_configuration()
+        else:
+            raise RuntimeError('Wrong config_input argument! Use property of ConfigInput class')
+
+        if data_input == DataInput.json:
+            self._get_events = self._get_events_json
+            self._get_recent_birthdays = self._get_recent_birthdays_json
             return
-        elif path_config_file is not None:
-            path = path_config_file
+        elif data_input == DataInput.https:
+            self._get_events = self._get_events_https
+            self._get_recent_birthdays = self._get_recent_birthdays_https
+            locale.setlocale(locale.LC_TIME, "nl_BE")
+            self._session = None
+            self.authenticate()
         else:
-            path = os.getcwd()
+            raise RuntimeError('Wrong data_input argument! Use property of DataInput class')
 
-        self._conf = ConfigParser.ConfigParser()
-        config_file = os.path.join(path, self._CONFIG_FILE)
-
-        if os.path.isfile(config_file):
-            self._conf.read(config_file)
-        else:
-            raise RuntimeError("Could not locate config file '%s'." % config_file)
-
-        self._load_configuration()
-
-    def _get_config(self, key, value):
+    def _get_config_netrc(self, key, value):
         """
         Get configuration value from config file.\n
 
@@ -62,6 +117,17 @@ class SiouxParser:
         :return: Configuration value. (string)\n
         """
         return self._conf.get(key, value)
+
+    def _get_config_dynamo_db(self, key, value):
+        try:
+            response = self._tables[key].query(KeyConditionExpression=Key('key').eq(value))
+        except botocore.exceptions.ClientError as e:
+            print(e.response['Error']['Message'])
+        else:
+            if len(response['Items']) != 1:
+                print 'Unexpected response: key:%s value:%s %s' % (key, value, response)
+                exit(1)
+            return response['Items'][0]['value']
 
     def _load_configuration(self):
 
@@ -165,7 +231,21 @@ class SiouxParser:
             raise RuntimeError("Bad response!")
         return req.text
 
-    def _get_events(self):
+    def _get_events_json(self):
+        with open('sioux_events.json', 'r') as fp:
+            json_dump = json.load(fp)
+
+            i = 0
+            for dates in json_dump['Date']:
+                j = 0
+                for date in dates:
+                    json_dump['Date'][i][j] = datetime.strptime(date, "%Y-%m-%d").date()
+                    j = j + 1
+                i = i + 1
+
+            self._RAW_EVENTS = json_dump
+
+    def _get_events_https(self):
         """
         Get all events from the events page and store it in member _RAW_EVENTS.\n
 
@@ -191,7 +271,18 @@ class SiouxParser:
 
         self._RAW_EVENTS = dict_events
 
-    def _get_recent_birthdays(self):
+    def _get_recent_birthdays_json(self):
+        with open('sioux_birthdays.json', 'r') as fp:
+            json_dump = json.load(fp)
+
+            i = 0
+            for date in json_dump['Date']:
+                json_dump['Date'][i] = datetime.strptime(date, "%Y-%m-%d").date()
+                i = i + 1
+
+            self._RAW_BDAYS = json_dump
+
+    def _get_recent_birthdays_https(self):
         """
         Get all recent birthdays from the bday page and store it in the member _RAW_BDAYS.\n
 
@@ -432,7 +523,6 @@ class SiouxParser:
             self._get_events()
 
         events = self._RAW_EVENTS
-
         for i in range(len(events['Date'])):
             if not (filter_title in events['Title'][i] and filter_cat[events['Cat'][i]] and self._validate_day(events['Date'][i], filter_date)):
                 continue
@@ -479,11 +569,11 @@ class SiouxParser:
 
 # Main program:
 if __name__ == "__main__":
-    parser = SiouxParser()
-    parser.authenticate()
+    # parser = SiouxParser(config_input=ConfigInput.dynamodb, data_input=DataInput.json)
+    parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.https)
 
     # Set filters
-    get_age = True
+    get_age = False
     filter_category_dict = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True, presentation=True)
     filter_date_dict = parser.filter_events_date(one_day=True, mul_day=True, today=True, future=True, past=False)
     filter_bday_dict = parser.filter_bday(today=False, future=True, past=False, age=get_age)
