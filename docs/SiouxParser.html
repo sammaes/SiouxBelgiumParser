@@ -1139,8 +1139,8 @@ table {
         <span class="k">return</span> <span class="s1">&#39;json&#39;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;HTTPS&#39;</span>
+    <span class="k">def</span> <span class="nf">intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;intranet&#39;</span>
 
 
 <span class="k">class</span> <span class="nc">SiouxParser</span><span class="p">:</span>
@@ -1207,9 +1207,9 @@ table {
             <span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_events.json&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_birthdays.json&#39;</span>
             <span class="k">return</span>
-        <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">https</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_https</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_https</span>
+        <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">intranet</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_intranet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_intranet</span>
             <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">()</span>
@@ -1355,7 +1355,7 @@ table {
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">json_dump</span>
 
-    <span class="k">def</span> <span class="nf">_get_events_https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_events_intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all events from the events page and store it in member _RAW_EVENTS.\n</span>
 
@@ -1392,7 +1392,7 @@ table {
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span> <span class="o">=</span> <span class="n">json_dump</span>
 
-    <span class="k">def</span> <span class="nf">_get_recent_birthdays_https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_recent_birthdays_intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all recent birthdays from the bday page and store it in the member _RAW_BDAYS.\n</span>
 
@@ -1695,7 +1695,7 @@ table {
 <span class="c1"># Main program:</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="c1"># parser = SiouxParser(config_input=ConfigInput.dynamodb, data_input=DataInput.json)</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">SiouxParser</span><span class="p">(</span><span class="n">config_input</span><span class="o">=</span><span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">,</span> <span class="n">data_input</span><span class="o">=</span><span class="n">DataInput</span><span class="o">.</span><span class="n">https</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">SiouxParser</span><span class="p">(</span><span class="n">config_input</span><span class="o">=</span><span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">,</span> <span class="n">data_input</span><span class="o">=</span><span class="n">DataInput</span><span class="o">.</span><span class="n">intranet</span><span class="p">)</span>
 
     <span class="c1"># Set filters</span>
     <span class="n">get_age</span> <span class="o">=</span> <span class="bp">False</span>
@@ -1829,8 +1829,8 @@ table {
         <span class="k">return</span> <span class="s1">&#39;json&#39;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;HTTPS&#39;</span>
+    <span class="k">def</span> <span class="nf">intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;intranet&#39;</span>
 </pre></div>
 
   </div>
@@ -1844,7 +1844,7 @@ table {
           </ul>
           <h3>Instance variables</h3>
             <div class="item">
-            <p id="SiouxParser.DataInput.https" class="name">var <span class="ident">https</span></p>
+            <p id="SiouxParser.DataInput.intranet" class="name">var <span class="ident">intranet</span></p>
             
 
             
@@ -1959,9 +1959,9 @@ table {
             <span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_events.json&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_birthdays.json&#39;</span>
             <span class="k">return</span>
-        <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">https</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_https</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_https</span>
+        <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">intranet</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_intranet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_intranet</span>
             <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">()</span>
@@ -2107,7 +2107,7 @@ table {
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_EVENTS</span> <span class="o">=</span> <span class="n">json_dump</span>
 
-    <span class="k">def</span> <span class="nf">_get_events_https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_events_intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all events from the events page and store it in member _RAW_EVENTS.\n</span>
 
@@ -2144,7 +2144,7 @@ table {
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span> <span class="o">=</span> <span class="n">json_dump</span>
 
-    <span class="k">def</span> <span class="nf">_get_recent_birthdays_https</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_recent_birthdays_intranet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all recent birthdays from the bday page and store it in the member _RAW_BDAYS.\n</span>
 
@@ -2511,9 +2511,9 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_json_events</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_events.json&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json_bday</span> <span class="o">=</span> <span class="n">path_json_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">path_json_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s1">&#39;sioux_birthdays.json&#39;</span>
         <span class="k">return</span>
-    <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">https</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_https</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_https</span>
+    <span class="k">elif</span> <span class="n">data_input</span> <span class="o">==</span> <span class="n">DataInput</span><span class="o">.</span><span class="n">intranet</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_events_intranet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays_intranet</span>
         <span class="n">locale</span><span class="o">.</span><span class="n">setlocale</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">LC_TIME</span><span class="p">,</span> <span class="s2">&quot;nl_BE&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">()</span>

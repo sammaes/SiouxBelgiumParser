@@ -37,8 +37,8 @@ class DataInput:
         return 'json'
 
     @property
-    def https(self):
-        return 'HTTPS'
+    def intranet(self):
+        return 'intranet'
 
 
 class SiouxParser:
@@ -105,9 +105,9 @@ class SiouxParser:
             self._json_events = path_json_file[0] if path_json_file is not None else 'sioux_events.json'
             self._json_bday = path_json_file[1] if path_json_file is not None else 'sioux_birthdays.json'
             return
-        elif data_input == DataInput.https:
-            self._get_events = self._get_events_https
-            self._get_recent_birthdays = self._get_recent_birthdays_https
+        elif data_input == DataInput.intranet:
+            self._get_events = self._get_events_intranet
+            self._get_recent_birthdays = self._get_recent_birthdays_intranet
             locale.setlocale(locale.LC_TIME, "nl_BE")
             self._session = None
             self.authenticate()
@@ -253,7 +253,7 @@ class SiouxParser:
 
             self._RAW_EVENTS = json_dump
 
-    def _get_events_https(self):
+    def _get_events_intranet(self):
         """
         Get all events from the events page and store it in member _RAW_EVENTS.\n
 
@@ -290,7 +290,7 @@ class SiouxParser:
 
             self._RAW_BDAYS = json_dump
 
-    def _get_recent_birthdays_https(self):
+    def _get_recent_birthdays_intranet(self):
         """
         Get all recent birthdays from the bday page and store it in the member _RAW_BDAYS.\n
 
@@ -593,7 +593,7 @@ class SiouxParser:
 # Main program:
 if __name__ == "__main__":
     # parser = SiouxParser(config_input=ConfigInput.dynamodb, data_input=DataInput.json)
-    parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.https)
+    parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.intranet)
 
     # Set filters
     get_age = False

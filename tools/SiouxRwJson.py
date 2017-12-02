@@ -61,7 +61,7 @@ if __name__ == "__main__":
         pdb.set_trace()
 
     elif str(sys.argv[1]).lower() == 'write':
-        parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.https)
+        parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.intranet)
 
         print 'Retrieve events...'
         parser._get_events_https()
