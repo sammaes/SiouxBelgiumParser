@@ -56,11 +56,14 @@ class SiouxParser:
     # Config file
     _CONFIG_FILE = 'config.ini'
 
-    def __init__(self, config_input, data_input, path_config_file=None):
+    def __init__(self, config_input, data_input, path_config_file=None, path_json_file=None):
         """
         Parser for Sioux BE intranet.\n
 
+        :param config_input:     Which source is used to get the configuration variables. (property of ConfigInput)\n
+        :param data_input:       Which source is used to gather data.(property of DataInput)\n
         :param path_config_file: Path to the configuration file. (default: current directory)\n
+        :param path_json_file:   Path to the JSON files used. (default: ['sioux_events.json', 'sioux_birthdays.json'])\n
         """
 
         if config_input == ConfigInput.netrc:
@@ -98,6 +101,9 @@ class SiouxParser:
         if data_input == DataInput.json:
             self._get_events = self._get_events_json
             self._get_recent_birthdays = self._get_recent_birthdays_json
+
+            self._json_events = path_json_file[0] if path_json_file is not None else 'sioux_events.json'
+            self._json_bday = path_json_file[1] if path_json_file is not None else 'sioux_birthdays.json'
             return
         elif data_input == DataInput.https:
             self._get_events = self._get_events_https
@@ -234,7 +240,7 @@ class SiouxParser:
         return req.text
 
     def _get_events_json(self):
-        with open('sioux_events.json', 'r') as fp:
+        with open(self._json_events, 'r') as fp:
             json_dump = json.load(fp)
 
             i = 0
@@ -274,7 +280,7 @@ class SiouxParser:
         self._RAW_EVENTS = dict_events
 
     def _get_recent_birthdays_json(self):
-        with open('sioux_birthdays.json', 'r') as fp:
+        with open(self._json_bday, 'r') as fp:
             json_dump = json.load(fp)
 
             i = 0
