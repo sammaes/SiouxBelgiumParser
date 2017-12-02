@@ -1069,6 +1069,7 @@ table {
   <ul>
     <li class="mono"><a href="#SiouxParser.SiouxParser.__init__">__init__</a></li>
     <li class="mono"><a href="#SiouxParser.SiouxParser.authenticate">authenticate</a></li>
+    <li class="mono"><a href="#SiouxParser.SiouxParser.filter_bday_category">filter_bday_category</a></li>
     <li class="mono"><a href="#SiouxParser.SiouxParser.filter_bday_date">filter_bday_date</a></li>
     <li class="mono"><a href="#SiouxParser.SiouxParser.filter_events_category">filter_events_category</a></li>
     <li class="mono"><a href="#SiouxParser.SiouxParser.filter_events_date">filter_events_date</a></li>
@@ -1265,6 +1266,10 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_bday_parse_overall</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_OVERALL_BDAY&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bday_parse_separate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_SEPARATE_BDAY&#39;</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ROLE_COLLEGUE_BDAY&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bday_child</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ROLE_COLLEGUE_CHILD&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bday_partner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ROLE_COLLEGUE_PARTNER&#39;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_tab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;TAB&#39;</span><span class="p">),</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_tab_arg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;TAB_ARG&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_tab_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;TAB_VALUE&#39;</span><span class="p">)</span>
@@ -1274,8 +1279,6 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_date_element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE_ELEMENT&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_date_arg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE_ARG&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_date_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE_VALUE&#39;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ROLE_COLLEGUE_BDAY&#39;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_curr_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1586,14 +1589,30 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_ONE_DAY</span><span class="p">:</span> <span class="n">one_day</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MUL_DAY</span><span class="p">:</span> <span class="n">mul_day</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TODAY</span><span class="p">:</span> <span class="n">today</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FUTURE</span><span class="p">:</span> <span class="n">future</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PAST</span><span class="p">:</span> <span class="n">past</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">filter_bday_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">today</span><span class="p">,</span> <span class="n">future</span><span class="p">,</span> <span class="n">past</span><span class="p">,</span> <span class="n">age</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">filter_bday_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collegue</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">partner</span><span class="p">,</span> <span class="n">age</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a filter to be used in the parse_birthdays method.\n</span>
+
+<span class="sd">        :param collegue: Include collegues. (boolean)\n</span>
+<span class="sd">        :param child:    Include children of collegues. (boolean)\n</span>
+<span class="sd">        :param partner:  Include partner of collegues. (boolean)\n</span>
+<span class="sd">        :param age:      Include new age\n</span>
+<span class="sd">        :return: Bday filters based on categories. (Dictionary with bday categories as a key and their respective boolean argument as value.)\n</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bday_child</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bday_partner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">])</span>
+        <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span><span class="p">]</span> <span class="o">=</span> <span class="n">collegue</span>
+        <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_child</span><span class="p">]</span> <span class="o">=</span> <span class="n">child</span>
+        <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_partner</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner</span>
+        <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">]</span> <span class="o">=</span> <span class="n">age</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="nf">filter_bday_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">today</span><span class="p">,</span> <span class="n">future</span><span class="p">,</span> <span class="n">past</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a filter to be used in the parse_birthdays method.\n</span>
 
 <span class="sd">        :param today:  Include today&#39;s birthdays. (boolean)\n</span>
 <span class="sd">        :param future: Include future birthdays. (boolean)\n</span>
 <span class="sd">        :param past:   Include birthdays that already happened. (boolean)\n</span>
-<span class="sd">        :param age:    Include new age\n</span>
 <span class="sd">        :return: Bday filters based on date requirements. (List)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filter_bday_date</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1604,8 +1623,6 @@ table {
             <span class="n">filter_bday_date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_FUTURE</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">past</span><span class="p">:</span>
             <span class="n">filter_bday_date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_PAST</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">age</span><span class="p">:</span>
-            <span class="n">filter_bday_date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">filter_bday_date</span>
 
@@ -1637,10 +1654,11 @@ table {
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span>
 
-    <span class="k">def</span> <span class="nf">parse_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_bday_date</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">parse_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_bday_category</span><span class="p">,</span> <span class="n">filter_bday_date</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse and filter all birthdays into a list of dictionaries.\n</span>
 
+<span class="sd">        :param filter_bday_category: Filter created in method filter_bday_category.\n</span>
 <span class="sd">        :param filter_bday_date: Filter created in method filter_bday_date.\n</span>
 <span class="sd">        :return: Birthdays (List of dictionaries with keys: name, date, role, url, [new age].)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1652,8 +1670,8 @@ table {
         <span class="n">bdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">])):</span>
-            <span class="k">if</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">filter_bday_date</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span> <span class="ow">in</span> <span class="n">filter_bday_date</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">filter_bday_date</span> <span class="ow">and</span> <span class="n">filter_bday_category</span><span class="p">[</span><span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Role&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]]:</span>
+                <span class="k">if</span> <span class="n">filter_bday_category</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">]:</span>
                     <span class="n">temp_age</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_persons_age</span><span class="p">(</span><span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Role&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span><span class="p">:</span>
                         <span class="n">age</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_age</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FUTURE</span> <span class="k">else</span> <span class="n">temp_age</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># age should reflect how old someone will become this year.</span>
@@ -1677,14 +1695,15 @@ table {
     <span class="n">get_age</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="n">filter_category_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_events_category</span><span class="p">(</span><span class="n">social_partner</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">social_colleague</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">powwow</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">exp_group</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">presentation</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">filter_date_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_events_date</span><span class="p">(</span><span class="n">one_day</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">mul_day</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">today</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">past</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">filter_bday_date_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_bday_date</span><span class="p">(</span><span class="n">today</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">past</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="n">get_age</span><span class="p">)</span>
+    <span class="n">filter_bday_category_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_bday_category</span><span class="p">(</span><span class="n">collegue</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">child</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">partner</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="n">get_age</span><span class="p">)</span>
+    <span class="n">filter_bday_date_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">filter_bday_date</span><span class="p">(</span><span class="n">today</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">past</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
     <span class="c1"># Retrieve events</span>
     <span class="n">events_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_events</span><span class="p">(</span><span class="n">filter_category_dict</span><span class="p">,</span> <span class="n">filter_date_dict</span><span class="p">)</span>
     <span class="c1"># events = parser.get_next_event(filter_category_dict, filter_date_dict, &quot;in the cloud&quot;)</span>
 
     <span class="c1"># Retrieve birthdays</span>
-    <span class="n">bday_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_birthdays</span><span class="p">(</span><span class="n">filter_bday_date_dict</span><span class="p">)</span>
+    <span class="n">bday_dict</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_birthdays</span><span class="p">(</span><span class="n">filter_bday_category_dict</span><span class="p">,</span> <span class="n">filter_bday_date_dict</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events_dict</span><span class="p">:</span>
         <span class="k">print</span> <span class="s1">&#39;Title: </span><span class="se">\t\t</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
@@ -1993,6 +2012,10 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_bday_parse_overall</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_OVERALL_BDAY&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bday_parse_separate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;VALUE_SEPARATE_BDAY&#39;</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ROLE_COLLEGUE_BDAY&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bday_child</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ROLE_COLLEGUE_CHILD&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bday_partner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ROLE_COLLEGUE_PARTNER&#39;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_tab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;TAB&#39;</span><span class="p">),</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_tab_arg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;TAB_ARG&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_tab_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;TAB_VALUE&#39;</span><span class="p">)</span>
@@ -2002,8 +2025,6 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_date_element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE_ELEMENT&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_date_arg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE_ARG&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_p_d_date_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;P_D&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE_VALUE&#39;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">(</span><span class="s1">&#39;PARSE_BDAY&#39;</span><span class="p">,</span> <span class="s1">&#39;ROLE_COLLEGUE_BDAY&#39;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_curr_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2314,14 +2335,30 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_ONE_DAY</span><span class="p">:</span> <span class="n">one_day</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MUL_DAY</span><span class="p">:</span> <span class="n">mul_day</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_TODAY</span><span class="p">:</span> <span class="n">today</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FUTURE</span><span class="p">:</span> <span class="n">future</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PAST</span><span class="p">:</span> <span class="n">past</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">filter_bday_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">today</span><span class="p">,</span> <span class="n">future</span><span class="p">,</span> <span class="n">past</span><span class="p">,</span> <span class="n">age</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">filter_bday_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collegue</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">partner</span><span class="p">,</span> <span class="n">age</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a filter to be used in the parse_birthdays method.\n</span>
+
+<span class="sd">        :param collegue: Include collegues. (boolean)\n</span>
+<span class="sd">        :param child:    Include children of collegues. (boolean)\n</span>
+<span class="sd">        :param partner:  Include partner of collegues. (boolean)\n</span>
+<span class="sd">        :param age:      Include new age\n</span>
+<span class="sd">        :return: Bday filters based on categories. (Dictionary with bday categories as a key and their respective boolean argument as value.)\n</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bday_child</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bday_partner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">])</span>
+        <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span><span class="p">]</span> <span class="o">=</span> <span class="n">collegue</span>
+        <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_child</span><span class="p">]</span> <span class="o">=</span> <span class="n">child</span>
+        <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_partner</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner</span>
+        <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">]</span> <span class="o">=</span> <span class="n">age</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="nf">filter_bday_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">today</span><span class="p">,</span> <span class="n">future</span><span class="p">,</span> <span class="n">past</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a filter to be used in the parse_birthdays method.\n</span>
 
 <span class="sd">        :param today:  Include today&#39;s birthdays. (boolean)\n</span>
 <span class="sd">        :param future: Include future birthdays. (boolean)\n</span>
 <span class="sd">        :param past:   Include birthdays that already happened. (boolean)\n</span>
-<span class="sd">        :param age:    Include new age\n</span>
 <span class="sd">        :return: Bday filters based on date requirements. (List)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filter_bday_date</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2332,8 +2369,6 @@ table {
             <span class="n">filter_bday_date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_FUTURE</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">past</span><span class="p">:</span>
             <span class="n">filter_bday_date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_PAST</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">age</span><span class="p">:</span>
-            <span class="n">filter_bday_date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">filter_bday_date</span>
 
@@ -2365,10 +2400,11 @@ table {
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span>
 
-    <span class="k">def</span> <span class="nf">parse_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_bday_date</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">parse_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_bday_category</span><span class="p">,</span> <span class="n">filter_bday_date</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse and filter all birthdays into a list of dictionaries.\n</span>
 
+<span class="sd">        :param filter_bday_category: Filter created in method filter_bday_category.\n</span>
 <span class="sd">        :param filter_bday_date: Filter created in method filter_bday_date.\n</span>
 <span class="sd">        :return: Birthdays (List of dictionaries with keys: name, date, role, url, [new age].)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2380,8 +2416,8 @@ table {
         <span class="n">bdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">])):</span>
-            <span class="k">if</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">filter_bday_date</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span> <span class="ow">in</span> <span class="n">filter_bday_date</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">filter_bday_date</span> <span class="ow">and</span> <span class="n">filter_bday_category</span><span class="p">[</span><span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Role&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]]:</span>
+                <span class="k">if</span> <span class="n">filter_bday_category</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">]:</span>
                     <span class="n">temp_age</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_persons_age</span><span class="p">(</span><span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Role&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span><span class="p">:</span>
                         <span class="n">age</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_age</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FUTURE</span> <span class="k">else</span> <span class="n">temp_age</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># age should reflect how old someone will become this year.</span>
@@ -2510,8 +2546,48 @@ table {
   
             
   <div class="item">
+    <div class="name def" id="SiouxParser.SiouxParser.filter_bday_category">
+    <p>def <span class="ident">filter_bday_category</span>(</p><p>self, collegue, child, partner, age)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Creates a filter to be used in the parse_birthdays method.</p>
+<p>:param collegue: Include collegues. (boolean)</p>
+<p>:param child:    Include children of collegues. (boolean)</p>
+<p>:param partner:  Include partner of collegues. (boolean)</p>
+<p>:param age:      Include new age</p>
+<p>:return: Bday filters based on categories. (Dictionary with bday categories as a key and their respective boolean argument as value.)</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.SiouxParser.filter_bday_category', this);">Show source &equiv;</a></p>
+  <div id="source-SiouxParser.SiouxParser.filter_bday_category" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">filter_bday_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collegue</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">partner</span><span class="p">,</span> <span class="n">age</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a filter to be used in the parse_birthdays method.\n</span>
+<span class="sd">    :param collegue: Include collegues. (boolean)\n</span>
+<span class="sd">    :param child:    Include children of collegues. (boolean)\n</span>
+<span class="sd">    :param partner:  Include partner of collegues. (boolean)\n</span>
+<span class="sd">    :param age:      Include new age\n</span>
+<span class="sd">    :return: Bday filters based on categories. (Dictionary with bday categories as a key and their respective boolean argument as value.)\n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bday_child</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bday_partner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">])</span>
+    <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span><span class="p">]</span> <span class="o">=</span> <span class="n">collegue</span>
+    <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_child</span><span class="p">]</span> <span class="o">=</span> <span class="n">child</span>
+    <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bday_partner</span><span class="p">]</span> <span class="o">=</span> <span class="n">partner</span>
+    <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">]</span> <span class="o">=</span> <span class="n">age</span>
+    <span class="k">return</span> <span class="n">d</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
     <div class="name def" id="SiouxParser.SiouxParser.filter_bday_date">
-    <p>def <span class="ident">filter_bday_date</span>(</p><p>self, today, future, past, age)</p>
+    <p>def <span class="ident">filter_bday_date</span>(</p><p>self, today, future, past)</p>
     </div>
     
 
@@ -2521,18 +2597,16 @@ table {
 <p>:param today:  Include today's birthdays. (boolean)</p>
 <p>:param future: Include future birthdays. (boolean)</p>
 <p>:param past:   Include birthdays that already happened. (boolean)</p>
-<p>:param age:    Include new age</p>
 <p>:return: Bday filters based on date requirements. (List)</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.SiouxParser.filter_bday_date', this);">Show source &equiv;</a></p>
   <div id="source-SiouxParser.SiouxParser.filter_bday_date" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">filter_bday_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">today</span><span class="p">,</span> <span class="n">future</span><span class="p">,</span> <span class="n">past</span><span class="p">,</span> <span class="n">age</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">filter_bday_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">today</span><span class="p">,</span> <span class="n">future</span><span class="p">,</span> <span class="n">past</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a filter to be used in the parse_birthdays method.\n</span>
 <span class="sd">    :param today:  Include today&#39;s birthdays. (boolean)\n</span>
 <span class="sd">    :param future: Include future birthdays. (boolean)\n</span>
 <span class="sd">    :param past:   Include birthdays that already happened. (boolean)\n</span>
-<span class="sd">    :param age:    Include new age\n</span>
 <span class="sd">    :return: Bday filters based on date requirements. (List)\n</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">filter_bday_date</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2542,8 +2616,6 @@ table {
         <span class="n">filter_bday_date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_FUTURE</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">past</span><span class="p">:</span>
         <span class="n">filter_bday_date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_PAST</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">age</span><span class="p">:</span>
-        <span class="n">filter_bday_date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">filter_bday_date</span>
 </pre></div>
 
@@ -2726,21 +2798,23 @@ table {
             
   <div class="item">
     <div class="name def" id="SiouxParser.SiouxParser.parse_birthdays">
-    <p>def <span class="ident">parse_birthdays</span>(</p><p>self, filter_bday_date)</p>
+    <p>def <span class="ident">parse_birthdays</span>(</p><p>self, filter_bday_category, filter_bday_date)</p>
     </div>
     
 
     
   
     <div class="desc"><p>Parse and filter all birthdays into a list of dictionaries.</p>
+<p>:param filter_bday_category: Filter created in method filter_bday_category.</p>
 <p>:param filter_bday_date: Filter created in method filter_bday_date.</p>
 <p>:return: Birthdays (List of dictionaries with keys: name, date, role, url, [new age].)</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.SiouxParser.parse_birthdays', this);">Show source &equiv;</a></p>
   <div id="source-SiouxParser.SiouxParser.parse_birthdays" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_bday_date</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_birthdays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_bday_category</span><span class="p">,</span> <span class="n">filter_bday_date</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse and filter all birthdays into a list of dictionaries.\n</span>
+<span class="sd">    :param filter_bday_category: Filter created in method filter_bday_category.\n</span>
 <span class="sd">    :param filter_bday_date: Filter created in method filter_bday_date.\n</span>
 <span class="sd">    :return: Birthdays (List of dictionaries with keys: name, date, role, url, [new age].)\n</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2749,8 +2823,8 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_recent_birthdays</span><span class="p">()</span>
     <span class="n">bdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_RAW_BDAYS</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">])):</span>
-        <span class="k">if</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">filter_bday_date</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span> <span class="ow">in</span> <span class="n">filter_bday_date</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">filter_bday_date</span> <span class="ow">and</span> <span class="n">filter_bday_category</span><span class="p">[</span><span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Role&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]]:</span>
+            <span class="k">if</span> <span class="n">filter_bday_category</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_AGE</span><span class="p">]:</span>
                 <span class="n">temp_age</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_persons_age</span><span class="p">(</span><span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Url&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;Role&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bday_collegue</span><span class="p">:</span>
                     <span class="n">age</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_age</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">bdays</span><span class="p">[</span><span class="s1">&#39;RelativeTime&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FUTURE</span> <span class="k">else</span> <span class="n">temp_age</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># age should reflect how old someone will become this year.</span>

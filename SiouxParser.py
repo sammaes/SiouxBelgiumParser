@@ -164,6 +164,10 @@ class SiouxParser:
         self._bday_parse_overall = self._get_config('PARSE_BDAY', 'VALUE_OVERALL_BDAY')
         self._bday_parse_separate = self._get_config('PARSE_BDAY', 'VALUE_SEPARATE_BDAY')
 
+        self._bday_collegue = self._get_config('PARSE_BDAY', 'ROLE_COLLEGUE_BDAY')
+        self._bday_child = self._get_config('PARSE_BDAY', 'ROLE_COLLEGUE_CHILD')
+        self._bday_partner = self._get_config('PARSE_BDAY', 'ROLE_COLLEGUE_PARTNER')
+
         self._p_d_tab = self._get_config('P_D', 'TAB'),
         self._p_d_tab_arg = self._get_config('P_D', 'TAB_ARG')
         self._p_d_tab_value = self._get_config('P_D', 'TAB_VALUE')
@@ -173,8 +177,6 @@ class SiouxParser:
         self._p_d_date_element = self._get_config('P_D', 'DATE_ELEMENT')
         self._p_d_date_arg = self._get_config('P_D', 'DATE_ARG')
         self._p_d_date_value = self._get_config('P_D', 'DATE_VALUE')
-
-        self._bday_collegue = self._get_config('PARSE_BDAY', 'ROLE_COLLEGUE_BDAY')
 
     @property
     def _curr_date(self):
@@ -485,14 +487,30 @@ class SiouxParser:
         """
         return {self._ONE_DAY: one_day, self._MUL_DAY: mul_day, self._TODAY: today, self._FUTURE: future, self._PAST: past}
 
-    def filter_bday_date(self, today, future, past, age):
+    def filter_bday_category(self, collegue, child, partner, age):
+        """
+        Creates a filter to be used in the parse_birthdays method.\n
+
+        :param collegue: Include collegues. (boolean)\n
+        :param child:    Include children of collegues. (boolean)\n
+        :param partner:  Include partner of collegues. (boolean)\n
+        :param age:      Include new age\n
+        :return: Bday filters based on categories. (Dictionary with bday categories as a key and their respective boolean argument as value.)\n
+        """
+        d = dict.fromkeys([self._bday_collegue, self._bday_child, self._bday_partner, self._AGE])
+        d[self._bday_collegue] = collegue
+        d[self._bday_child] = child
+        d[self._bday_partner] = partner
+        d[self._AGE] = age
+        return d
+
+    def filter_bday_date(self, today, future, past):
         """
         Creates a filter to be used in the parse_birthdays method.\n
 
         :param today:  Include today's birthdays. (boolean)\n
         :param future: Include future birthdays. (boolean)\n
         :param past:   Include birthdays that already happened. (boolean)\n
-        :param age:    Include new age\n
         :return: Bday filters based on date requirements. (List)\n
         """
         filter_bday_date = []
@@ -503,8 +521,6 @@ class SiouxParser:
             filter_bday_date.append(self._FUTURE)
         if past:
             filter_bday_date.append(self._PAST)
-        if age:
-            filter_bday_date.append(self._AGE)
 
         return filter_bday_date
 
@@ -536,10 +552,11 @@ class SiouxParser:
             results.append(result)
         return results
 
-    def parse_birthdays(self, filter_bday_date):
+    def parse_birthdays(self, filter_bday_category, filter_bday_date):
         """
         Parse and filter all birthdays into a list of dictionaries.\n
 
+        :param filter_bday_category: Filter created in method filter_bday_category.\n
         :param filter_bday_date: Filter created in method filter_bday_date.\n
         :return: Birthdays (List of dictionaries with keys: name, date, role, url, [new age].)\n
         """
@@ -551,8 +568,8 @@ class SiouxParser:
         bdays = self._RAW_BDAYS
 
         for i in range(len(bdays['Date'])):
-            if bdays['RelativeTime'][i] in filter_bday_date:
-                if self._AGE in filter_bday_date:
+            if bdays['RelativeTime'][i] in filter_bday_date and filter_bday_category[bdays['Role'][i]]:
+                if filter_bday_category[self._AGE]:
                     temp_age = self._get_persons_age(bdays['Url'][i])
                     if bdays['Role'][i] == self._bday_collegue:
                         age = (temp_age if not bdays['RelativeTime'][i] == self._FUTURE else temp_age + 1)  # age should reflect how old someone will become this year.
@@ -576,14 +593,15 @@ if __name__ == "__main__":
     get_age = False
     filter_category_dict = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True, presentation=True)
     filter_date_dict = parser.filter_events_date(one_day=True, mul_day=True, today=True, future=True, past=False)
-    filter_bday_date_dict = parser.filter_bday_date(today=False, future=True, past=False, age=get_age)
+    filter_bday_category_dict = parser.filter_bday_category(collegue=True, child=True, partner=True, age=get_age)
+    filter_bday_date_dict = parser.filter_bday_date(today=False, future=True, past=False)
 
     # Retrieve events
     events_dict = parser.parse_events(filter_category_dict, filter_date_dict)
     # events = parser.get_next_event(filter_category_dict, filter_date_dict, "in the cloud")
 
     # Retrieve birthdays
-    bday_dict = parser.parse_birthdays(filter_bday_date_dict)
+    bday_dict = parser.parse_birthdays(filter_bday_category_dict, filter_bday_date_dict)
 
     for event in events_dict:
         print 'Title: \t\t%s' % event['title']

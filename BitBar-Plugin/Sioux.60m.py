@@ -49,12 +49,13 @@ parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.https,
 filter_event = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
 filter_date = parser.filter_events_date(one_day=True, mul_day=True, today=False, future=True, past=False)
 filter_bday_date = parser.filter_bday_date(today=True, future=True, past=False)
+filter_bday_category = parser.filter_bday_category(collegue=True, child=True, partner=True, age=False)
 
 # Get events
 next_general_event = parser.get_next_event(filter_event, filter_date)
 cloud_event = parser.get_next_event(filter_event, filter_date, "in the cloud")
 linux_event = parser.get_next_event(filter_event, filter_date, "Linux Kennisdelen")
-bdays = parser.parse_birthdays(filter_bday_date)
+bdays = parser.parse_birthdays(filter_bday_category, filter_bday_date)
 
 # These prints define the menu, starting with the visible text in the menu bar (in this case, an image)
 print "| templateImage=%s" % sioux_sun
