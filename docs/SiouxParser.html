@@ -1163,14 +1163,15 @@ table {
     <span class="c1"># Config file</span>
     <span class="n">_CONFIG_FILE</span> <span class="o">=</span> <span class="s1">&#39;config.ini&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_input</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path_json_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_input</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path_json_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dynamo_db_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parser for Sioux BE intranet.\n</span>
 
 <span class="sd">        :param config_input:     Which source is used to get the configuration variables. (property of ConfigInput)\n</span>
 <span class="sd">        :param data_input:       Which source is used to gather data.(property of DataInput)\n</span>
-<span class="sd">        :param path_config_file: Path to the configuration file. (default: current directory)\n</span>
-<span class="sd">        :param path_json_file:   Path to the JSON files used. (default: [&#39;sioux_events.json&#39;, &#39;sioux_birthdays.json&#39;])\n</span>
+<span class="sd">        :param path_config_file: Path to the configuration file. (default: current directory) (optional)\n</span>
+<span class="sd">        :param path_json_file:   Path to the JSON files used. (default: [&#39;sioux_events.json&#39;, &#39;sioux_birthdays.json&#39;]) (optional)\n</span>
+<span class="sd">        :param dynamo_db_settings: Options for Dynamo DB. (default: [&#39;us-west-2&#39;, &#39;http://localhost:8000&#39;]) (optional)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">:</span>
@@ -1192,7 +1193,9 @@ table {
         <span class="k">elif</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">dynamodb</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_dynamo_db</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;dynamodb&#39;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="s1">&#39;us-west-2&#39;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">)</span>
+            <span class="n">region</span> <span class="o">=</span> <span class="n">dynamo_db_settings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">dynamo_db_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s2">&quot;us-west-2&quot;</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="n">dynamo_db_settings</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">dynamo_db_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s2">&quot;http://localhost:8000&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;dynamodb&#39;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">region</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="n">endpoint</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s1">&#39;URLS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_URLS&#39;</span><span class="p">),</span>
@@ -1945,14 +1948,15 @@ table {
     <span class="c1"># Config file</span>
     <span class="n">_CONFIG_FILE</span> <span class="o">=</span> <span class="s1">&#39;config.ini&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_input</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path_json_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_input</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path_json_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dynamo_db_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parser for Sioux BE intranet.\n</span>
 
 <span class="sd">        :param config_input:     Which source is used to get the configuration variables. (property of ConfigInput)\n</span>
 <span class="sd">        :param data_input:       Which source is used to gather data.(property of DataInput)\n</span>
-<span class="sd">        :param path_config_file: Path to the configuration file. (default: current directory)\n</span>
-<span class="sd">        :param path_json_file:   Path to the JSON files used. (default: [&#39;sioux_events.json&#39;, &#39;sioux_birthdays.json&#39;])\n</span>
+<span class="sd">        :param path_config_file: Path to the configuration file. (default: current directory) (optional)\n</span>
+<span class="sd">        :param path_json_file:   Path to the JSON files used. (default: [&#39;sioux_events.json&#39;, &#39;sioux_birthdays.json&#39;]) (optional)\n</span>
+<span class="sd">        :param dynamo_db_settings: Options for Dynamo DB. (default: [&#39;us-west-2&#39;, &#39;http://localhost:8000&#39;]) (optional)\n</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">:</span>
@@ -1974,7 +1978,9 @@ table {
         <span class="k">elif</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">dynamodb</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_dynamo_db</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;dynamodb&#39;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="s1">&#39;us-west-2&#39;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">)</span>
+            <span class="n">region</span> <span class="o">=</span> <span class="n">dynamo_db_settings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">dynamo_db_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s2">&quot;us-west-2&quot;</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="n">dynamo_db_settings</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">dynamo_db_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s2">&quot;http://localhost:8000&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;dynamodb&#39;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">region</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="n">endpoint</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s1">&#39;URLS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_URLS&#39;</span><span class="p">),</span>
@@ -2508,7 +2514,7 @@ table {
             
   <div class="item">
     <div class="name def" id="SiouxParser.SiouxParser.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, config_input, data_input, path_config_file=None, path_json_file=None)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, config_input, data_input, path_config_file=None, path_json_file=None, dynamo_db_settings=None)</p>
     </div>
     
 
@@ -2517,18 +2523,20 @@ table {
     <div class="desc"><p>Parser for Sioux BE intranet.</p>
 <p>:param config_input:     Which source is used to get the configuration variables. (property of ConfigInput)</p>
 <p>:param data_input:       Which source is used to gather data.(property of DataInput)</p>
-<p>:param path_config_file: Path to the configuration file. (default: current directory)</p>
-<p>:param path_json_file:   Path to the JSON files used. (default: ['sioux_events.json', 'sioux_birthdays.json'])</p></div>
+<p>:param path_config_file: Path to the configuration file. (default: current directory) (optional)</p>
+<p>:param path_json_file:   Path to the JSON files used. (default: ['sioux_events.json', 'sioux_birthdays.json']) (optional)</p>
+<p>:param dynamo_db_settings: Options for Dynamo DB. (default: ['us-west-2', 'http://localhost:8000']) (optional)</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-SiouxParser.SiouxParser.__init__', this);">Show source &equiv;</a></p>
   <div id="source-SiouxParser.SiouxParser.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_input</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path_json_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_input</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">path_config_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path_json_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dynamo_db_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parser for Sioux BE intranet.\n</span>
 <span class="sd">    :param config_input:     Which source is used to get the configuration variables. (property of ConfigInput)\n</span>
 <span class="sd">    :param data_input:       Which source is used to gather data.(property of DataInput)\n</span>
-<span class="sd">    :param path_config_file: Path to the configuration file. (default: current directory)\n</span>
-<span class="sd">    :param path_json_file:   Path to the JSON files used. (default: [&#39;sioux_events.json&#39;, &#39;sioux_birthdays.json&#39;])\n</span>
+<span class="sd">    :param path_config_file: Path to the configuration file. (default: current directory) (optional)\n</span>
+<span class="sd">    :param path_json_file:   Path to the JSON files used. (default: [&#39;sioux_events.json&#39;, &#39;sioux_birthdays.json&#39;]) (optional)\n</span>
+<span class="sd">    :param dynamo_db_settings: Options for Dynamo DB. (default: [&#39;us-west-2&#39;, &#39;http://localhost:8000&#39;]) (optional)\n</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">netrc</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_netrc</span>
@@ -2545,7 +2553,9 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_configuration</span><span class="p">()</span>
     <span class="k">elif</span> <span class="n">config_input</span> <span class="o">==</span> <span class="n">ConfigInput</span><span class="o">.</span><span class="n">dynamodb</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config_dynamo_db</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;dynamodb&#39;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="s1">&#39;us-west-2&#39;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">)</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="n">dynamo_db_settings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">dynamo_db_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s2">&quot;us-west-2&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">dynamo_db_settings</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">dynamo_db_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s2">&quot;http://localhost:8000&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;dynamodb&#39;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">region</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="o">=</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;URLS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_URLS&#39;</span><span class="p">),</span>
             <span class="s1">&#39;EVENTS&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamodb</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;SIOUX_EVENTS&#39;</span><span class="p">),</span>

@@ -61,14 +61,15 @@ class SiouxParser:
     # Config file
     _CONFIG_FILE = 'config.ini'
 
-    def __init__(self, config_input, data_input, path_config_file=None, path_json_file=None):
+    def __init__(self, config_input, data_input, path_config_file=None, path_json_file=None, dynamo_db_settings=None):
         """
         Parser for Sioux BE intranet.\n
 
         :param config_input:     Which source is used to get the configuration variables. (property of ConfigInput)\n
         :param data_input:       Which source is used to gather data.(property of DataInput)\n
-        :param path_config_file: Path to the configuration file. (default: current directory)\n
-        :param path_json_file:   Path to the JSON files used. (default: ['sioux_events.json', 'sioux_birthdays.json'])\n
+        :param path_config_file: Path to the configuration file. (default: current directory) (optional)\n
+        :param path_json_file:   Path to the JSON files used. (default: ['sioux_events.json', 'sioux_birthdays.json']) (optional)\n
+        :param dynamo_db_settings: Options for Dynamo DB. (default: ['us-west-2', 'http://localhost:8000']) (optional)\n
         """
 
         if config_input == ConfigInput.netrc:
@@ -90,7 +91,9 @@ class SiouxParser:
         elif config_input == ConfigInput.dynamodb:
             self._get_config = self._get_config_dynamo_db
 
-            self._dynamodb = boto3.resource('dynamodb', region_name='us-west-2', endpoint_url="http://localhost:8000")
+            region = dynamo_db_settings[0] if dynamo_db_settings is not None else "us-west-2"
+            endpoint = dynamo_db_settings[1] if dynamo_db_settings is not None else "http://localhost:8000"
+            self._dynamodb = boto3.resource('dynamodb', region_name=region, endpoint_url=endpoint)
 
             self._tables = {
                 'URLS': self._dynamodb.Table('SIOUX_URLS'),
