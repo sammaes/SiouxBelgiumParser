@@ -8,6 +8,7 @@ from SiouxParser import SiouxParser
 from SiouxParser import ConfigInput
 from SiouxParser import DataInput
 
+
 class SiouxDataJson:
     def __init__(self):
         pass
