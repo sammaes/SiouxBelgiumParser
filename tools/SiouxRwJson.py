@@ -63,13 +63,6 @@ if __name__ == "__main__":
     elif str(sys.argv[1]).lower() == 'write':
         parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.https)
 
-        print 'Set filters...'
-        get_age = True
-        filter_category_dict = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True,
-                                                             training=True, exp_group=True, presentation=True)
-        filter_date_dict = parser.filter_events_date(one_day=True, mul_day=True, today=True, future=True, past=True)
-        filter_bday_dict = parser.filter_bday(today=True, future=True, past=True, age=get_age)
-
         print 'Retrieve events...'
         parser._get_events_https()
 
