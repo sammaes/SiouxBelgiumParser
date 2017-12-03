@@ -15,7 +15,7 @@ def print_menu_section(section_title, event, show_cat=False):
     menu_details = "trim=false font=HelveticaNeue-Italic"
     print "%s | %s" % (section_title, menu_section_title)
     print "%s | %s" % (event['title'], menu_title)
-    print "     %s | %s" % (datetime.strptime(event['date'], "%d/%m/%Y").strftime("%d %B %Y"), menu_details)
+    print "     %s | %s" % (event['date'], menu_details)
     print "     %s | %s" % (event['location'], menu_details)
     if show_cat:
         print "     %s | %s" % (event['category'], menu_details)
@@ -46,7 +46,7 @@ sioux_sun = "iVBORw0KGgoAAAANSUhEUgAAACYAAAAmCAYAAACoPemuAAABemlDQ1BJQ0MgUHJvZml
 parser = SiouxParser(config_input=ConfigInput.netrc, data_input=DataInput.intranet, path_config_file=os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'scripts'))
 
 # Set filters
-filter_event = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True)
+filter_event = parser.filter_events_category(social_partner=True, social_colleague=True, powwow=True, training=True, exp_group=True, presentation=True)
 filter_date = parser.filter_events_date(one_day=True, mul_day=True, today=False, future=True, past=False)
 filter_bday_date = parser.filter_bday_date(today=True, future=True, past=False)
 filter_bday_category = parser.filter_bday_category(collegue=True, child=True, partner=True, age=False)
